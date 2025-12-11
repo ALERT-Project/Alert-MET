@@ -10,8 +10,6 @@
             --text-color: #e0e0e0;
             --red: #cf6679;
             --red-hover: #b0485d;
-            --input-bg: #2d2d2d;
-            --border: #333;
         }
 
         body {
@@ -26,33 +24,7 @@
             justify-content: center;
         }
 
-        h1 { margin-bottom: 30px; font-weight: 300; letter-spacing: 1px; color: #fff; }
-
-        .input-group {
-            margin-bottom: 25px;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: #aaa;
-            font-weight: 600;
-        }
-
-        input[type="text"] {
-            padding: 12px;
-            width: 120px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: white;
-            font-size: 1.2rem;
-            text-align: center;
-            outline: none;
-        }
-        input[type="text"]:focus { border-color: var(--red); }
+        h1 { margin-bottom: 40px; font-weight: 300; letter-spacing: 1px; color: #fff; }
 
         .btn-launch {
             background-color: var(--red);
@@ -94,11 +66,6 @@
 
     <h1>MET Call Entry</h1>
 
-    <div class="input-group">
-        <label for="bgl">BGL</label>
-        <input type="text" id="bgl" placeholder="BGL">
-    </div>
-
     <button class="btn-launch" onclick="launchRedcap()">
         Launch<br>Redcap
     </button>
@@ -121,15 +88,18 @@
             "outcome": "3",          // Continue ALERT review
             "int_group_e___41": "1", // Checkbox: ALERT to continue to follow up
 
-            // Standard Interventions
+            // Standard Interventions (Pre-checked)
             "int_group_a___6": "1",  // Attended MET activation
             "int_group_a___8": "1",  // Perform A-E Assessment
             "int_group_a___9": "1",  // Perform Obs
             "int_group_a___10": "1", // 12 Lead ECG
             "int_group_b___11": "1", // Chest Auscultations
-            "int_group_b___16": "1", // Perform BGL / Ketones (CHECKBOX)
             "int_group_b___19": "1", // Cognitive assessment
-            "int_group_c___25": "1"  // Abnormal electrolytes/bloods
+            "int_group_c___25": "1", // Abnormal electrolytes/bloods
+            
+            // BGL Configuration
+            "int_group_b___16": "1",      // CHECK the box
+            "bgl_ketones_detail": "BGL"   // FILL the text box with "BGL"
         }
     };
 
@@ -157,14 +127,13 @@
         return { date: dateStr, shiftCode: shift, shiftName: shiftName };
     }
 
-    // Update Status Text
+    // Update Status Text on Load
     const info = getShiftInfo();
     document.getElementById('status').textContent = `Ready: ${info.date} (${info.shiftName} Shift)`;
 
     function launchRedcap() {
         let params = [];
         const timeData = getShiftInfo();
-        const bglVal = document.getElementById('bgl').value;
 
         // 1. Add All Config Defaults
         for (const [key, val] of Object.entries(CONFIG.defaults)) {
@@ -175,12 +144,7 @@
         params.push(`shift_date=${timeData.date}`);
         params.push(`shifttype=${timeData.shiftCode}`);
 
-        // 3. Add BGL Detail (if entered)
-        if (bglVal) {
-            params.push(`bgl_ketones_detail=${encodeURIComponent(bglVal)}`);
-        }
-
-        // 4. Open
+        // 3. Open
         window.open(`${CONFIG.baseUrl}&${params.join('&')}`, '_blank');
     }
 </script>
