@@ -1,153 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MET Call Launcher</title>
-    <style>
-        :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --red: #cf6679;
-            --red-hover: #b0485d;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>ALERT RedCap Fast Entry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    :root {
+      /* Shared Theme */
+      --bg: #f0f9f9; --card: #ffffff; --ink: #111827; --muted: #6b7280; 
+      --accent: #007a7a; --accent-hover: #006262;
+      --red: #ef4444; --red-hover: #d32f2f;
+      --line: #d1e3e3; --input-bg: #f8fbfb;
+      --success: #10b981;
+      --radius: 12px;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        h1 { margin-bottom: 40px; font-weight: 300; letter-spacing: 1px; color: #fff; }
+    /* --- HEADER --- */
+    header {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--card);
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    header h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--accent); /* Default ALERT color */
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
 
-        .btn-launch {
-            background-color: var(--red);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 220px;
-            height: 220px;
-            font-size: 1.6rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(207, 102, 121, 0.4);
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            line-height: 1.3;
-            text-transform: uppercase;
-        }
+    /* --- CONTAINER --- */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        .btn-launch:hover {
-            background-color: var(--red-hover);
-            transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(207, 102, 121, 0.6);
-        }
+    /* --- CARDS --- */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-        .btn-launch:active { transform: scale(0.96); }
+    .section-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
 
-        .status-text {
-            margin-top: 30px;
-            font-size: 0.95rem;
-            color: #888;
-            font-family: monospace;
-        }
-    </style>
+    /* --- SCANNER --- */
+    #reader {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+      background: #000;
+      margin-bottom: 12px;
+    }
+
+    .btn-scan-big {
+      width: 100%;
+      padding: 20px;
+      background-color: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.1s;
+    }
+    .btn-scan-big:active { transform: scale(0.98); background-color: #000; }
+    
+    .camera-icon { font-size: 1.5rem; }
+
+    /* --- INPUT ROWS --- */
+    .input-row {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 24px 12px 8px 12px; /* Top padding for label */
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--input-bg);
+      color: var(--ink);
+      font-size: 1.1rem;
+      outline: none;
+      font-family: monospace;
+      font-weight: 600;
+      box-sizing: border-box;
+      height: 60px;
+    }
+    .input-wrapper input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,122,122,0.1); }
+
+    .input-label {
+      position: absolute;
+      top: 6px;
+      left: 12px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .btn-copy-big {
+      width: 90px;
+      border: 1px solid var(--line);
+      background-color: white;
+      color: var(--accent);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-copy-big:active { transform: scale(0.96); }
+    .btn-copy-big.copied { 
+        background-color: var(--success); 
+        color: white; 
+        border-color: var(--success);
+        font-size: 0.9rem;
+    }
+
+    /* --- LAUNCH ACTIONS --- */
+    .action-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .btn-launch {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 24px;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.1s;
+      
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-launch:active { transform: scale(0.98); }
+
+    .btn-rounding { background-color: var(--accent); }
+    .btn-rounding:hover { background-color: var(--accent-hover); }
+
+    .btn-met { background-color: var(--red); }
+    .btn-met:hover { background-color: var(--red-hover); }
+
+    .status-bar {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 20px;
+      font-family: monospace;
+    }
+
+    #html5-qrcode-anchor-scan-type-change { display: none !important; }
+  </style>
 </head>
 <body>
 
-    <h1>MET Call Entry</h1>
+  <header>
+    <h1>
+      ALERT 
+      <span style="color:var(--red)">RedCap</span> 
+      <span style="font-weight:400; color:var(--ink)">Fast Entry</span>
+    </h1>
+  </header>
 
-    <button class="btn-launch" onclick="launchRedcap()">
-        Launch<br>Redcap
-    </button>
+  <div class="container">
+    
+    <div class="card">
+      <div id="reader"></div>
+      <button id="btn-scan-toggle" class="btn-scan-big" onclick="toggleScanner()">
+        <span class="camera-icon">📷</span> <span id="scan-text">SCAN STICKER</span>
+      </button>
+    </div>
 
-    <div class="status-text" id="status"></div>
+    <div class="card">
+      <div class="section-title">Patient Details</div>
+      
+      <div class="input-row">
+          <div class="input-wrapper">
+            <label class="input-label">URN</label>
+            <input type="text" id="urn-result" placeholder="Scan above or manually enter..." autocapitalize="characters" autocomplete="off">
+          </div>
+          <button class="btn-copy-big" onclick="copyToClipboard('urn-result', this, 'URN')">COPY</button>
+      </div>
+
+      <div class="input-row">
+          <div class="input-wrapper">
+            <label class="input-label">Visit Number</label>
+            <input type="text" id="visit-result" placeholder="Scan above or manually enter..." inputmode="numeric" autocomplete="off">
+          </div>
+          <button class="btn-copy-big" onclick="copyToClipboard('visit-result', this, 'Visit')">COPY</button>
+      </div>
+    </div>
+
+    <div class="action-stack">
+      
+      <button class="btn-launch btn-rounding" onclick="launchRedcap('rounding')">
+        Launch Rounding RedCap
+      </button>
+
+      <button class="btn-launch btn-met" onclick="launchRedcap('met')">
+        Launch MET RedCap
+      </button>
+
+    </div>
+    
+    <div class="status-bar" id="status">Calculated: --</div>
+
+  </div>
 
 <script>
-    // --- CONFIGURATION ---
-    const CONFIG = {
-        baseUrl: "https://datalibrary-rc.health.wa.gov.au/surveys/?s=K3WAPC4KKXWNTF3F",
-        defaults: {
-            // Admin / Context
-            "site": "1",             // Fiona Stanley
+    const BASE_URL = "https://datalibrary-rc.health.wa.gov.au/surveys/?s=K3WAPC4KKXWNTF3F";
+
+    const PRESETS = {
+        // 1. MET CALL (Full Auto)
+        met: {
+            "site": "1",             
             "contactreason": "1",    // MET Call
-            "alert_team": "1",       // Always CNS
+            "alert_team": "1",       // CNS
             "adds_score": "9",       // Emergency Call
             "met_call_hoot": "1",    // Yes
+            "outcome": "3",          // Continue
+            "int_group_e___41": "1", // Follow up
             
-            // Outcome & Plan
-            "outcome": "3",          // Continue ALERT review
-            "int_group_e___41": "1", // Checkbox: ALERT to continue to follow up
+            // Interventions
+            "int_group_a___6": "1",  // Attended MET
+            "int_group_a___8": "1",  // A-E
+            "int_group_a___9": "1",  // Obs
+            "int_group_a___10": "1", // ECG
+            "int_group_b___11": "1", // Chest
+            "int_group_b___16": "1", // BGL (Box)
+            "int_group_b___19": "1", // Cog
+            "int_group_c___25": "1", // Electrolytes
+            "bgl_ketones_detail": "BGL" // Text
+        },
 
-            // Standard Interventions (Pre-checked)
-            "int_group_a___6": "1",  // Attended MET activation
-            "int_group_a___8": "1",  // Perform A-E Assessment
-            "int_group_a___9": "1",  // Perform Obs
-            "int_group_a___10": "1", // 12 Lead ECG
-            "int_group_b___11": "1", // Chest Auscultations
-            "int_group_b___19": "1", // Cognitive assessment
-            "int_group_c___25": "1", // Abnormal electrolytes/bloods
-            
-            // BGL Configuration
-            "int_group_b___16": "1",      // CHECK the box
-            "bgl_ketones_detail": "BGL"   // FILL the text box with "BGL"
+        // 2. ROUNDING (Open)
+        rounding: {
+            "site": "1",
+            "alert_team": "2",       // CN (Nurse)
+            // contactreason: BLANK
+            // adds_score: BLANK
+            // outcome: BLANK
+            // int_group_e___41: BLANK
+
+            // Interventions
+            "int_group_a___8": "1",  // A-E
+            "int_group_b___19": "1", // Cog
+            "int_group_c___25": "1"  // Electrolytes
         }
     };
 
-    // --- LOGIC ---
+    // --- SCANNER LOGIC ---
+    let html5QrcodeScanner = null;
+    let isScanning = false;
+
+    function toggleScanner() {
+        if (isScanning) {
+            stopScanner();
+        } else {
+            startScanner();
+        }
+    }
+
+    function startScanner() {
+        const readerDiv = document.getElementById('reader');
+        const btn = document.getElementById('btn-scan-toggle');
+        const txt = document.getElementById('scan-text');
+        
+        readerDiv.style.display = 'block';
+        txt.innerText = "STOP CAMERA";
+        btn.style.backgroundColor = "#ef4444"; 
+        isScanning = true;
+
+        if (!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5Qrcode("reader");
+        }
+
+        const config = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 }, 
+            aspectRatio: 1.0,
+            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] 
+        };
+
+        html5QrcodeScanner.start(
+            { facingMode: "environment" }, 
+            config, 
+            onScanSuccess, 
+            onScanFailure
+        ).catch(err => {
+            console.error(err);
+            alert("Camera error. Ensure HTTPS is used.");
+            stopScanner();
+        });
+    }
+
+    function stopScanner() {
+        if (html5QrcodeScanner && isScanning) {
+            html5QrcodeScanner.stop().then(() => {
+                const readerDiv = document.getElementById('reader');
+                const btn = document.getElementById('btn-scan-toggle');
+                const txt = document.getElementById('scan-text');
+                
+                readerDiv.style.display = 'none';
+                txt.innerText = "SCAN STICKER";
+                btn.style.backgroundColor = ""; 
+                isScanning = false;
+            }).catch(err => console.error(err));
+        }
+    }
+
+    function onScanSuccess(decodedText) {
+        // URN: 1 Letter + 7 Digits
+        const urnMatch = decodedText.match(/([A-Z]\d{7})/i);
+        // Visit: 8 Digits
+        const visitMatch = decodedText.match(/(\d{8})/);
+
+        let urnFound = urnMatch ? urnMatch[1] : "";
+        let visitFound = "";
+
+        if (visitMatch) {
+            if (!urnFound || !urnFound.includes(visitMatch[1])) {
+                visitFound = visitMatch[1];
+            }
+        }
+
+        let updated = false;
+        if(urnFound) { document.getElementById('urn-result').value = urnFound; updated = true; }
+        if(visitFound) { document.getElementById('visit-result').value = visitFound; updated = true; }
+        
+        if(updated) {
+            stopScanner();
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+    }
+
+    function onScanFailure(error) {}
+
+    // --- COPY LOGIC ---
+    function copyToClipboard(id, btn, label) {
+        const val = document.getElementById(id).value;
+        if(!val) return;
+        navigator.clipboard.writeText(val).then(() => {
+            const originalText = btn.innerText;
+            // Update button text to specific feedback
+            btn.innerText = `${label} COPIED!`;
+            btn.classList.add('copied');
+            
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('copied');
+            }, 1500);
+        });
+    }
+
+    // --- DATE & SHIFT ---
     function getShiftInfo() {
         const now = new Date();
+        const d = ("0"+now.getDate()).slice(-2);
+        const m = ("0"+(now.getMonth()+1)).slice(-2);
+        const y = now.getFullYear();
         
-        // Date: YYYY-MM-DD
-        const day = ("0" + now.getDate()).slice(-2);
-        const month = ("0" + (now.getMonth() + 1)).slice(-2);
-        const year = now.getFullYear();
-        const dateStr = `${year}-${month}-${day}`;
-
-        // Shift: 07:30 - 14:30 - 20:00
-        const decTime = now.getHours() + (now.getMinutes() / 60);
-        let shift = "3"; // Default Night
-        let shiftName = "Night";
-
-        if (decTime >= 7.5 && decTime < 14.5) {
-            shift = "1"; shiftName = "Day";
-        } else if (decTime >= 14.5 && decTime < 20.0) {
-            shift = "2"; shiftName = "Evening";
-        }
-
-        return { date: dateStr, shiftCode: shift, shiftName: shiftName };
+        const h = now.getHours() + (now.getMinutes()/60);
+        let s = "3"; let n = "Night";
+        if (h >= 7.5 && h < 14.5) { s = "1"; n = "Day"; }
+        else if (h >= 14.5 && h < 20.0) { s = "2"; n = "Eve"; }
+        
+        return { date: `${y}-${m}-${d}`, code: s, name: n };
     }
 
-    // Update Status Text on Load
     const info = getShiftInfo();
-    document.getElementById('status').textContent = `Ready: ${info.date} (${info.shiftName} Shift)`;
+    document.getElementById('status').innerText = `${info.date} • ${info.name} Shift`;
 
-    function launchRedcap() {
+    // --- LAUNCH ---
+    function launchRedcap(mode) {
         let params = [];
-        const timeData = getShiftInfo();
+        const time = getShiftInfo();
+        const config = PRESETS[mode];
 
-        // 1. Add All Config Defaults
-        for (const [key, val] of Object.entries(CONFIG.defaults)) {
+        for (const [key, val] of Object.entries(config)) {
             params.push(`${key}=${val}`);
         }
+        params.push(`shift_date=${time.date}`);
+        params.push(`shifttype=${time.code}`);
 
-        // 2. Add Dynamic Date/Shift
-        params.push(`shift_date=${timeData.date}`);
-        params.push(`shifttype=${timeData.shiftCode}`);
-
-        // 3. Open
-        window.open(`${CONFIG.baseUrl}&${params.join('&')}`, '_blank');
+        window.open(`${BASE_URL}&${params.join('&')}`, '_blank');
     }
 </script>
-
 </body>
 </html>
