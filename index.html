@@ -4,15 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>ALERT RedCap Fast Entry</title>
+  <title>ALERT Care Call Log Tool</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     :root {
-      /* Shared Theme */
       --bg: #f0f9f9; --card: #ffffff; --ink: #111827; --muted: #6b7280; 
       --accent: #007a7a; --accent-hover: #006262;
       --red: #ef4444; --red-hover: #d32f2f;
+      --purple: #7e22ce; 
       --line: #d1e3e3; --input-bg: #f8fbfb;
       --success: #10b981;
       --radius: 12px;
@@ -22,429 +25,571 @@
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       color: var(--ink);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      margin: 0; padding: 0;
+      min-height: 100vh; display: flex; flex-direction: column;
     }
 
-    /* --- HEADER --- */
     header {
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-      background: var(--card);
-      text-align: center;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      padding: 16px; border-bottom: 1px solid var(--line);
+      background: var(--card); text-align: center;
+      position: sticky; top: 0; z-index: 10;
     }
-    header h1 {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: var(--accent); /* Default ALERT color */
-      margin: 0;
-      letter-spacing: -0.5px;
-    }
+    header h1 { font-size: 1.2rem; font-weight: 800; color: var(--accent); margin: 0; }
 
-    /* --- CONTAINER --- */
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 100%;
-      box-sizing: border-box;
+      max-width: 650px; margin: 0 auto; padding: 16px;
+      flex: 1; display: flex; flex-direction: column; gap: 16px;
+      width: 100%; box-sizing: border-box;
     }
 
-    /* --- CARDS --- */
     .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 16px;
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
     }
 
     .section-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      font-weight: 700;
-      margin-bottom: 4px;
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--muted); font-weight: 700; margin-top: 8px; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 4px;
     }
 
-    /* --- SCANNER --- */
-    #reader {
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      display: none;
-      background: #000;
-      margin-bottom: 12px;
-    }
-
-    .btn-scan-big {
-      width: 100%;
-      padding: 20px;
-      background-color: var(--ink);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.2rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      transition: transform 0.1s;
-    }
-    .btn-scan-big:active { transform: scale(0.98); background-color: #000; }
+    /* INPUTS */
+    .input-row { display: flex; gap: 10px; align-items: stretch; }
+    .input-wrapper { position: relative; flex: 1; }
     
-    .camera-icon { font-size: 1.5rem; }
-
-    /* --- INPUT ROWS --- */
-    .input-row {
-        display: flex;
-        gap: 8px;
-        align-items: stretch;
+    .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
+      width: 100%; padding: 24px 12px 8px 12px;
+      border-radius: 8px; border: 1px solid var(--line);
+      background: var(--input-bg); color: var(--ink);
+      font-size: 1rem; outline: none; font-weight: 600;
+      box-sizing: border-box; font-family: inherit;
     }
-
-    .input-wrapper {
-      position: relative;
-      flex: 1;
+    .input-wrapper input, .input-wrapper select { height: 56px; }
+    .input-wrapper select { appearance: none; background-color: white; }
+    
+    .input-wrapper textarea { 
+        min-height: 400px; 
+        padding-top: 12px; font-weight: 400; resize: vertical; line-height: 1.5;
     }
-
-    .input-wrapper input {
-      width: 100%;
-      padding: 24px 12px 8px 12px; /* Top padding for label */
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      background: var(--input-bg);
-      color: var(--ink);
-      font-size: 1.1rem;
-      outline: none;
-      font-family: monospace;
-      font-weight: 600;
-      box-sizing: border-box;
-      height: 60px;
-    }
-    .input-wrapper input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,122,122,0.1); }
 
     .input-label {
-      position: absolute;
-      top: 6px;
-      left: 12px;
-      font-size: 0.7rem;
-      color: var(--muted);
-      font-weight: 600;
-      text-transform: uppercase;
-      pointer-events: none;
+      position: absolute; top: 6px; left: 12px;
+      font-size: 0.7rem; color: var(--muted); font-weight: 600;
+      text-transform: uppercase; pointer-events: none; z-index: 2;
     }
 
-    .btn-copy-big {
-      width: 90px;
-      border: 1px solid var(--line);
-      background-color: white;
-      color: var(--accent);
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
+    /* CHECKBOXES */
+    .checkbox-group {
+        display: flex; flex-direction: column; gap: 8px;
+        background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--line);
+    }
+    .cb-row { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; font-weight: 500; }
+    .cb-row input { width: 20px; height: 20px; accent-color: var(--accent); }
+
+    /* BUTTONS */
+    .btn-copy-match {
+      width: 80px; border: 1px solid var(--line); background-color: white;
+      color: var(--accent); border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer;
       flex-shrink: 0;
     }
-    .btn-copy-big:active { transform: scale(0.96); }
-    .btn-copy-big.copied { 
-        background-color: var(--success); 
-        color: white; 
-        border-color: var(--success);
-        font-size: 0.9rem;
+    .btn-copy-match.copied { background-color: var(--success); color: white; border-color: var(--success); }
+
+    .rc-copy-row {
+        display: flex; gap: 10px; background: #fff0f0; padding: 12px; 
+        border-radius: 8px; border: 1px solid #fca5a5; align-items: center;
+        margin-top: 4px;
+    }
+    .rc-copy-box { flex: 1; }
+    .rc-copy-box label { display: block; font-size: 0.7rem; color: var(--red); font-weight: 700; margin-bottom: 2px; text-transform:uppercase; }
+    .rc-copy-box input { 
+        width: 100%; padding: 8px; border: 1px solid #fca5a5; border-radius: 6px; 
+        background: white; color: var(--ink); font-weight: 700; font-size: 1rem;
     }
 
-    /* --- LAUNCH ACTIONS --- */
-    .action-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
+    .action-stack { display: flex; flex-direction: column; gap: 12px; }
     .btn-launch {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 24px;
-      border: none;
-      border-radius: 12px;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: transform 0.1s;
-      
-      font-size: 1.2rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: flex; align-items: center; justify-content: center; width: 100%;
+      padding: 18px; border: none; border-radius: 10px; color: white;
+      cursor: pointer; font-size: 1.1rem; font-weight: 700; text-transform: uppercase;
     }
-    .btn-launch:active { transform: scale(0.98); }
+    .btn-accent { background-color: var(--accent); }
+    .btn-red { background-color: var(--red); }
+    .btn-purple { background-color: var(--purple); }
+    .btn-blue { background-color: #2563eb; }
 
-    .btn-rounding { background-color: var(--accent); }
-    .btn-rounding:hover { background-color: var(--accent-hover); }
-
-    .btn-met { background-color: var(--red); }
-    .btn-met:hover { background-color: var(--red-hover); }
-
-    .status-bar {
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 20px;
-      font-family: monospace;
+    /* UTILS */
+    .hidden { display: none !important; }
+    .btn-back {
+        background: transparent; border: 1px solid var(--line);
+        padding: 8px 16px; border-radius: 8px; color: var(--ink);
+        font-weight: 600; cursor: pointer; margin-bottom: 10px;
     }
-
-    #html5-qrcode-anchor-scan-type-change { display: none !important; }
+    #reader { width: 100%; border-radius: 8px; overflow: hidden; display: none; margin-bottom: 12px; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>
-      ALERT 
-      <span style="color:var(--red)">RedCap</span> 
-      <span style="font-weight:400; color:var(--ink)">Fast Entry</span>
-    </h1>
+    <h1>ALERT <span style="color:var(--red)">Care Call Log Tool</span></h1>
   </header>
 
   <div class="container">
     
-    <div class="card">
-      <div id="reader"></div>
-      <button id="btn-scan-toggle" class="btn-scan-big" onclick="toggleScanner()">
-        <span class="camera-icon">📷</span> <span id="scan-text">SCAN STICKER</span>
-      </button>
+    <div id="view-home">
+        <div class="card">
+            <div id="reader"></div>
+            <button id="btn-scan-toggle" class="btn-launch" style="background:#111827; gap:12px;" onclick="toggleScanner()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3h7v7H3z"/>
+                    <path d="M14 3h7v7h-7z"/>
+                    <path d="M14 14h7v7h-7z"/>
+                    <path d="M3 14h7v7H3z"/>
+                </svg>
+                <span id="scan-text">Scan QR code on sticker</span>
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Patient Identification</div>
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label class="input-label">URN (UMRN)</label>
+                    <input type="text" id="urn-main" placeholder="Scan..." oninput="syncInputs()">
+                </div>
+                <button class="btn-copy-match" onclick="copyToClipboard('urn-main', this)">COPY</button>
+            </div>
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label class="input-label">Visit Number</label>
+                    <input type="text" id="visit-main" placeholder="Scan..." oninput="syncInputs()">
+                </div>
+                <button class="btn-copy-match" onclick="copyToClipboard('visit-main', this)">COPY</button>
+            </div>
+        </div>
+
+        <div class="action-stack">
+            <button class="btn-launch btn-accent" onclick="launchRedcap('rounding')">Rounding RedCap</button>
+            <button class="btn-launch btn-red" onclick="launchRedcap('met')">MET Call RedCap</button>
+            <button class="btn-launch btn-purple" onclick="showCareLog()">Care Call Log</button>
+        </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">Patient Details</div>
-      
-      <div class="input-row">
-          <div class="input-wrapper">
-            <label class="input-label">URN</label>
-            <input type="text" id="urn-result" placeholder="Scan above or manually enter..." autocapitalize="characters" autocomplete="off">
-          </div>
-          <button class="btn-copy-big" onclick="copyToClipboard('urn-result', this, 'URN')">COPY</button>
-      </div>
+    <div id="view-care-log" class="hidden">
+        <button class="btn-back" onclick="showHome()">← Back to Home</button>
 
-      <div class="input-row">
-          <div class="input-wrapper">
-            <label class="input-label">Visit Number</label>
-            <input type="text" id="visit-result" placeholder="Scan above or manually enter..." inputmode="numeric" autocomplete="off">
-          </div>
-          <button class="btn-copy-big" onclick="copyToClipboard('visit-result', this, 'Visit')">COPY</button>
-      </div>
-    </div>
+        <div class="card">
+            <div class="section-title">Log Entry Details</div>
+            
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">Patient Surname</label><input type="text" id="cc-surname"></div></div>
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">Patient Given Name</label><input type="text" id="cc-given"></div></div>
+            
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label class="input-label">Ward</label>
+                    <select id="cc-location">
+                        <option value="">Select Ward...</option>
+                        </select>
+                </div>
+            </div>
+            
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">Bed Number</label><input type="text" id="cc-bed"></div></div>
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">UMRN</label><input type="text" id="cc-urn"></div></div>
+            
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label class="input-label">Current Inpatient</label>
+                    <select id="cc-inpatient"><option value="Yes">Yes</option><option value="No">No</option></select>
+                </div>
+            </div>
 
-    <div class="action-stack">
-      
-      <button class="btn-launch btn-rounding" onclick="launchRedcap('rounding')">
-        Launch Rounding RedCap
-      </button>
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">Consultant Name</label><input type="text" id="cc-consultant"></div></div>
+            
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label class="input-label">Team (Specialty)</label>
+                    <select id="cc-team">
+                        <option value="">Select Team...</option>
+                        <option value="1">Acute Surgical Unit (ASU)</option>
+                        <option value="2">Advanced Heart Failure and Transplant (AHFT)</option>
+                        <option value="3">Advanced Lung (ALDU)</option>
+                        <option value="4">Anaesthesia and Pain medicine</option>
+                        <option value="5">Breast service</option>
+                        <option value="6">Burns</option>
+                        <option value="7">Cardiology services</option>
+                        <option value="8">Cardiothoracics</option>
+                        <option value="9">Colorectal</option>
+                        <option value="10">Covid Respiratory</option>
+                        <option value="11">Dentistry/Dental</option>
+                        <option value="12">Dermatology</option>
+                        <option value="13">Ear Nose and Throat</option>
+                        <option value="14">Emergency medicine / ED / AECC</option>
+                        <option value="15">Endocrinology and Diabeties</option>
+                        <option value="16">Gastroenterology</option>
+                        <option value="17">General medicine / AMU</option>
+                        <option value="18">General surgery</option>
+                        <option value="19">Geriatric medicine (Geri's)</option>
+                        <option value="20">Gynaecological oncology</option>
+                        <option value="21">Gynaecology</option>
+                        <option value="22">Haematology</option>
+                        <option value="23">Hyperbaric medicine</option>
+                        <option value="24">Immunology and allergy (clinical)</option>
+                        <option value="25">Infectious diseases (ID)</option>
+                        <option value="26">Intensive care medicine</option>
+                        <option value="27">Maternal-fetal medicine</option>
+                        <option value="28">MDFU (Multi-disciplinary Foot)</option>
+                        <option value="29">Medical oncology</option>
+                        <option value="30">Microbiolology</option>
+                        <option value="31">Neonatal or perinatal medicine</option>
+                        <option value="32">Nephrology and Dialysis</option>
+                        <option value="33">Neurology</option>
+                        <option value="34">Neurosurgery</option>
+                        <option value="35">Nuclear medicine</option>
+                        <option value="36">Nuclear medicine</option>
+                        <option value="37">Obstetrics</option>
+                        <option value="38">Oncology (Medical Oncology)</option>
+                        <option value="39">Operating Theatres</option>
+                        <option value="40">Ophthalmology</option>
+                        <option value="41">Oral and maxillofacial surgery</option>
+                        <option value="42">Orthopaedic surgery</option>
+                        <option value="43">Paediatric surgery</option>
+                        <option value="44">Paediatrics (general)</option>
+                        <option value="45">Pathology</option>
+                        <option value="46">Plastic and reconstructive surgery (plastics)</option>
+                        <option value="47">Psychiatry</option>
+                        <option value="48">Psychiatry - Child</option>
+                        <option value="49">Psychogeriatrics</option>
+                        <option value="50">Radiation Oncology (Rad Onc)</option>
+                        <option value="51">Radiology and Medical Imaging</option>
+                        <option value="52">Radiotherapy</option>
+                        <option value="53">Rehabilitation medicine (Rehab)</option>
+                        <option value="54">Renal</option>
+                        <option value="55">Respiratory and sleep medicine</option>
+                        <option value="56">Rheumatology</option>
+                        <option value="57">Spinal</option>
+                        <option value="58">Upper GI</option>
+                        <option value="59">Urogynaecology</option>
+                        <option value="60">Urology</option>
+                        <option value="61">Vascular Surgery</option>
+                    </select>
+                </div>
+            </div>
 
-      <button class="btn-launch btn-met" onclick="launchRedcap('met')">
-        Launch MET RedCap
-      </button>
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">Caller's Name</label><input type="text" id="cc-caller"></div></div>
+            <div class="input-row"><div class="input-wrapper"><label class="input-label">Caller's Relationship to Patient</label><input type="text" id="cc-rel"></div></div>
+            
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label class="input-label">Consent for Follow-up Contact</label>
+                    <select id="cc-consent"><option value="Yes">Yes</option><option value="No">No</option></select>
+                </div>
+            </div>
 
+            <div class="checkbox-group">
+                <div style="font-size:0.75rem; color:var(--muted); font-weight:700; margin-bottom:6px;">TYPE (Select all that apply)</div>
+                <label class="cb-row"><input type="checkbox" id="cc-type-phys"> Physical / Mental State Deterioration</label>
+                <label class="cb-row"><input type="checkbox" id="cc-type-comm"> Communication Issues</label>
+                <label class="cb-row"><input type="checkbox" id="cc-type-comp"> Complaint</label>
+            </div>
+
+            <div class="section-title">Details</div>
+            <div class="input-wrapper">
+                <textarea id="cc-story" placeholder="Full narrative / details..."></textarea>
+            </div>
+
+            <div class="checkbox-group">
+                 <label class="cb-row">
+                    <input type="checkbox" id="cc-digital" checked> Digital Medical Record Completed
+                 </label>
+            </div>
+        </div>
+
+        <div class="action-stack">
+            <button class="btn-launch btn-accent" onclick="generatePDF()">1. Save PDF Log</button>
+            <button class="btn-launch btn-blue" onclick="openEmail()">2. Open Email</button>
+            <button class="btn-launch btn-red" style="border:2px solid white; box-shadow:0 4px 10px rgba(239,68,68,0.4);" onclick="launchRedcap('care')">3. Launch Care Call RedCap</button>
+            
+            <div class="rc-copy-row">
+                <div class="rc-copy-box">
+                    <label>RedCap Handy Copy: URN</label>
+                    <input type="text" id="mini-urn" readonly>
+                </div>
+                <button class="btn-copy-match" onclick="copyToClipboard('mini-urn', this)">COPY</button>
+                
+                <div class="rc-copy-box" style="margin-left:8px;">
+                    <label>VISIT</label>
+                    <input type="text" id="mini-visit" readonly>
+                </div>
+                <button class="btn-copy-match" onclick="copyToClipboard('mini-visit', this)">COPY</button>
+            </div>
+        </div>
+        <div style="height:40px;"></div>
     </div>
     
-    <div class="status-bar" id="status">Calculated: --</div>
-
+    <div id="status" style="text-align:center; color:gray; font-size:0.8rem; margin:10px;"></div>
   </div>
 
 <script>
     const BASE_URL = "https://datalibrary-rc.health.wa.gov.au/surveys/?s=K3WAPC4KKXWNTF3F";
+    const MET_EMAIL = "fshsqr.MET@health.wa.gov.au";
+    const LOCATIONS = [
+        {v:1, t:"3A"}, {v:2, t:"3B"}, {v:3, t:"3DMFAU"}, {v:4, t:"Birth Suite"}, {v:5, t:"3C"},
+        {v:6, t:"4A"}, {v:7, t:"4B"}, {v:8, t:"4C"}, {v:9, t:"4D"}, {v:10, t:"5A"},
+        {v:11, t:"5B"}, {v:12, t:"5C"}, {v:13, t:"5D"}, {v:14, t:"6A"}, {v:15, t:"6B"},
+        {v:16, t:"6C"}, {v:17, t:"6D"}, {v:18, t:"7A"}, {v:19, t:"7B"}, {v:20, t:"7C"},
+        {v:21, t:"7D"}, {v:22, t:"Adv Heart Failure"}, {v:23, t:"AECC"}, {v:24, t:"AH Gym"},
+        {v:25, t:"Cardiology OPC"}, {v:26, t:"Cardiac Rehab"}, {v:27, t:"Cancer Ctr"}, {v:28, t:"CC DTU"},
+        {v:29, t:"Cath Lab"}, {v:30, t:"CCU"}, {v:31, t:"Corrective Svcs"}, {v:32, t:"COVID Clinic"},
+        {v:33, t:"CSSU"}, {v:34, t:"DOSA"}, {v:35, t:"DMP"}, {v:36, t:"ED"}, {v:37, t:"Endoscopy"},
+        {v:38, t:"ESSU"}, {v:39, t:"Haemodialysis Inpt"}, {v:40, t:"Haemodialysis Outpt"},
+        {v:41, t:"HDU"}, {v:42, t:"Hyperbaric"}, {v:43, t:"ICU"}, {v:44, t:"Main Concourse"},
+        {v:45, t:"Main East"}, {v:46, t:"Main West"}, {v:47, t:"Med Imaging"}, {v:48, t:"MHA"},
+        {v:49, t:"MHB"}, {v:50, t:"MBU"}, {v:51, t:"OPC"}, {v:52, t:"OT"}, {v:53, t:"PACU"},
+        {v:54, t:"Pathwest"}, {v:55, t:"Pulm Rehab"}, {v:56, t:"Rad Onc"}, {v:57, t:"Short Stay"},
+        {v:58, t:"SRS 1A"}, {v:59, t:"SRS 2A"}, {v:60, t:"SRS A"}, {v:61, t:"SRS B"},
+        {v:62, t:"SRS Pool"}, {v:63, t:"SRS Gym"}, {v:64, t:"Transit Lounge"}
+    ];
 
-    const PRESETS = {
-        // 1. MET CALL (Full Auto)
-        met: {
-            "site": "1",             
-            "contactreason": "1",    // MET Call
-            "alert_team": "1",       // CNS
-            "adds_score": "9",       // Emergency Call
-            "met_call_hoot": "1",    // Yes
-            "outcome": "3",          // Continue
-            "int_group_e___41": "1", // Follow up
-            
-            // Interventions
-            "int_group_a___6": "1",  // Attended MET
-            "int_group_a___8": "1",  // A-E
-            "int_group_a___9": "1",  // Obs
-            "int_group_a___10": "1", // ECG
-            "int_group_b___11": "1", // Chest
-            "int_group_b___16": "1", // BGL (Box)
-            "int_group_b___19": "1", // Cog
-            "int_group_c___25": "1", // Electrolytes
-            "bgl_ketones_detail": "BGL" // Text
-        },
+    const locSelect = document.getElementById('cc-location');
+    LOCATIONS.forEach(l => {
+        let opt = document.createElement('option');
+        opt.value = l.v; opt.text = l.t; locSelect.add(opt);
+    });
 
-        // 2. ROUNDING (Open)
-        rounding: {
-            "site": "1",
-            "alert_team": "2",       // CN (Nurse)
-            // contactreason: BLANK
-            // adds_score: BLANK
-            // outcome: BLANK
-            // int_group_e___41: BLANK
-
-            // Interventions
-            "int_group_a___8": "1",  // A-E
-            "int_group_b___19": "1", // Cog
-            "int_group_c___25": "1"  // Electrolytes
+    function showCareLog() {
+        document.getElementById('view-home').classList.add('hidden');
+        document.getElementById('view-care-log').classList.remove('hidden');
+        syncInputs();
+        window.scrollTo(0,0);
+    }
+    function showHome() {
+        document.getElementById('view-home').classList.remove('hidden');
+        document.getElementById('view-care-log').classList.add('hidden');
+    }
+    function syncInputs() {
+        const u = document.getElementById('urn-main').value;
+        const v = document.getElementById('visit-main').value;
+        if(u) {
+            document.getElementById('cc-urn').value = u;
+            document.getElementById('mini-urn').value = u;
         }
-    };
-
-    // --- SCANNER LOGIC ---
-    let html5QrcodeScanner = null;
-    let isScanning = false;
-
-    function toggleScanner() {
-        if (isScanning) {
-            stopScanner();
-        } else {
-            startScanner();
+        if(v) {
+            document.getElementById('mini-visit').value = v;
         }
     }
-
-    function startScanner() {
-        const readerDiv = document.getElementById('reader');
-        const btn = document.getElementById('btn-scan-toggle');
-        const txt = document.getElementById('scan-text');
-        
-        readerDiv.style.display = 'block';
-        txt.innerText = "STOP CAMERA";
-        btn.style.backgroundColor = "#ef4444"; 
-        isScanning = true;
-
-        if (!html5QrcodeScanner) {
-            html5QrcodeScanner = new Html5Qrcode("reader");
-        }
-
-        const config = { 
-            fps: 10, 
-            qrbox: { width: 250, height: 250 }, 
-            aspectRatio: 1.0,
-            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] 
-        };
-
-        html5QrcodeScanner.start(
-            { facingMode: "environment" }, 
-            config, 
-            onScanSuccess, 
-            onScanFailure
-        ).catch(err => {
-            console.error(err);
-            alert("Camera error. Ensure HTTPS is used.");
-            stopScanner();
-        });
-    }
-
-    function stopScanner() {
-        if (html5QrcodeScanner && isScanning) {
-            html5QrcodeScanner.stop().then(() => {
-                const readerDiv = document.getElementById('reader');
-                const btn = document.getElementById('btn-scan-toggle');
-                const txt = document.getElementById('scan-text');
-                
-                readerDiv.style.display = 'none';
-                txt.innerText = "SCAN STICKER";
-                btn.style.backgroundColor = ""; 
-                isScanning = false;
-            }).catch(err => console.error(err));
-        }
-    }
-
-    function onScanSuccess(decodedText) {
-        // URN: 1 Letter + 7 Digits
-        const urnMatch = decodedText.match(/([A-Z]\d{7})/i);
-        // Visit: 8 Digits
-        const visitMatch = decodedText.match(/(\d{8})/);
-
-        let urnFound = urnMatch ? urnMatch[1] : "";
-        let visitFound = "";
-
-        if (visitMatch) {
-            if (!urnFound || !urnFound.includes(visitMatch[1])) {
-                visitFound = visitMatch[1];
-            }
-        }
-
-        let updated = false;
-        if(urnFound) { document.getElementById('urn-result').value = urnFound; updated = true; }
-        if(visitFound) { document.getElementById('visit-result').value = visitFound; updated = true; }
-        
-        if(updated) {
-            stopScanner();
-            if (navigator.vibrate) navigator.vibrate(200);
-        }
-    }
-
-    function onScanFailure(error) {}
-
-    // --- COPY LOGIC ---
-    function copyToClipboard(id, btn, label) {
-        const val = document.getElementById(id).value;
-        if(!val) return;
-        navigator.clipboard.writeText(val).then(() => {
-            const originalText = btn.innerText;
-            // Update button text to specific feedback
-            btn.innerText = `${label} COPIED!`;
-            btn.classList.add('copied');
-            
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.remove('copied');
-            }, 1500);
-        });
-    }
-
-    // --- DATE & SHIFT ---
     function getShiftInfo() {
         const now = new Date();
         const d = ("0"+now.getDate()).slice(-2);
         const m = ("0"+(now.getMonth()+1)).slice(-2);
         const y = now.getFullYear();
-        
         const h = now.getHours() + (now.getMinutes()/60);
-        let s = "3"; let n = "Night";
-        if (h >= 7.5 && h < 14.5) { s = "1"; n = "Day"; }
-        else if (h >= 14.5 && h < 20.0) { s = "2"; n = "Eve"; }
-        
-        return { date: `${y}-${m}-${d}`, code: s, name: n };
+        let c="3"; if(h>=7.5 && h<14.5)c="1"; else if(h>=14.5 && h<20)c="2";
+        return { api: `${y}-${m}-${d}`, display: `${d}/${m}/${y}`, code: c };
+    }
+    document.getElementById('status').innerText = `Date: ${getShiftInfo().display}`;
+
+    let scanner=null; let isScanning=false;
+    function toggleScanner(){ if(isScanning) stopScan(); else startScan(); }
+    function startScan(){
+        document.getElementById('reader').style.display='block';
+        document.getElementById('scan-text').innerText="STOP CAMERA";
+        isScanning=true;
+        if(!scanner) scanner = new Html5Qrcode("reader");
+        scanner.start({facingMode:"environment"}, {fps:10, qrbox:250}, (txt)=>{
+            const u = txt.match(/([A-Z]\d{7})/i);
+            const v = txt.match(/(\d{8})/);
+            if(u) document.getElementById('urn-main').value = u[1];
+            if(v) document.getElementById('visit-main').value = v[1];
+            if(u||v) { stopScan(); syncInputs(); navigator.vibrate?.(200); }
+        }).catch(()=>{ alert("Camera error"); stopScan(); });
+    }
+    function stopScan(){
+        if(scanner) scanner.stop().then(()=>{
+            document.getElementById('reader').style.display='none';
+            document.getElementById('scan-text').innerText="Scan QR code on sticker";
+            isScanning=false;
+        });
     }
 
-    const info = getShiftInfo();
-    document.getElementById('status').innerText = `${info.date} • ${info.name} Shift`;
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const loc = document.getElementById('cc-location');
+        const wardTxt = loc.options[loc.selectedIndex].text === "Select Ward..." ? "" : loc.options[loc.selectedIndex].text;
+        
+        const teamSel = document.getElementById('cc-team');
+        const teamTxt = teamSel.options[teamSel.selectedIndex].text === "Select Team..." ? "" : teamSel.options[teamSel.selectedIndex].text;
+        
+        const d = {
+            sur: document.getElementById('cc-surname').value,
+            giv: document.getElementById('cc-given').value,
+            ward: wardTxt,
+            bed: document.getElementById('cc-bed').value,
+            urn: document.getElementById('cc-urn').value,
+            inpt: document.getElementById('cc-inpatient').value,
+            cons: document.getElementById('cc-consultant').value,
+            team: teamTxt,
+            caller: document.getElementById('cc-caller').value,
+            rel: document.getElementById('cc-rel').value,
+            date: getShiftInfo().display,
+            consent: document.getElementById('cc-consent').value,
+            story: document.getElementById('cc-story').value,
+            digi: document.getElementById('cc-digital').checked ? "YES" : "NO",
+            phys: document.getElementById('cc-type-phys').checked ? "YES" : "NO",
+            comm: document.getElementById('cc-type-comm').checked ? "YES" : "NO",
+            comp: document.getElementById('cc-type-comp').checked ? "YES" : "NO"
+        };
 
-    // --- LAUNCH ---
-    function launchRedcap(mode) {
-        let params = [];
-        const time = getShiftInfo();
-        const config = PRESETS[mode];
+        const margin = 14; 
+        const pageW = 210; 
+        const tableW = 182; 
+        const col1 = 70;
+        let y = 15;
+        const rowH = 9;
 
-        for (const [key, val] of Object.entries(config)) {
-            params.push(`${key}=${val}`);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("Fiona Stanley Hospital", pageW/2, y, {align:"center"});
+        y += 8;
+        doc.setFontSize(13);
+        doc.text("Patient Carer Activated Escalation (CARE) call received log", pageW/2, y, {align:"center"});
+        y += 12;
+
+        doc.setLineWidth(0.2);
+        doc.setFontSize(10);
+
+        function drawRow(label, val) {
+            doc.rect(margin, y, tableW, rowH);
+            doc.line(margin+col1-2, y, margin+col1-2, y+rowH);
+            doc.setFont("helvetica", "bold");
+            doc.text(label, margin+2, y+6);
+            doc.setFont("helvetica", "normal");
+            doc.text(val || "", margin+col1, y+6);
+            y += rowH;
         }
-        params.push(`shift_date=${time.date}`);
-        params.push(`shifttype=${time.code}`);
 
-        window.open(`${BASE_URL}&${params.join('&')}`, '_blank');
+        drawRow("Patient Surname", d.sur);
+        drawRow("Patient Given Name", d.giv);
+        drawRow("Ward", d.ward);
+        drawRow("Bed Number", d.bed);
+        drawRow("UMRN", d.urn);
+        drawRow("Current Inpatient", d.inpt);
+        drawRow("Consultant Name", d.cons);
+        drawRow("Team", d.team);
+        drawRow("Caller's Name", d.caller);
+        drawRow("Caller's Relationship to Patient", d.rel);
+        drawRow("Date Call Received", d.date);
+        drawRow("Consent for Follow-up Contact", d.consent);
+
+        // Checklist
+        const checkH = 22;
+        doc.rect(margin, y, tableW, checkH);
+        doc.line(margin+col1-2, y, margin+col1-2, y+checkH);
+        doc.setFont("helvetica", "bold");
+        doc.text("Physical / Mental State Deterioration", margin+2, y+6);
+        doc.text("Communication Issues", margin+2, y+12);
+        doc.text("Complaint", margin+2, y+18);
+        doc.setFont("helvetica", "normal");
+        const yesNoX = margin + col1;
+        doc.text(d.phys, yesNoX, y+6);
+        doc.text(d.comm, yesNoX, y+12);
+        doc.text(d.comp, yesNoX, y+18);
+        y += checkH;
+
+        y+=5;
+        doc.setFont("helvetica", "bold");
+        doc.text("Details", margin, y);
+        y+=2;
+
+        // Smart Box Logic
+        const lines = doc.splitTextToSize(d.story, tableW-4);
+        const lineHeight = 5;
+        let startBoxY = y;
+        doc.line(margin, y, margin + tableW, y); // Top border
+
+        for(let i=0; i<lines.length; i++){
+            // Page Break Check
+            if(y > 275) {
+                 // Close box on current page
+                 doc.line(margin, startBoxY, margin, y + lineHeight);
+                 doc.line(margin+tableW, startBoxY, margin+tableW, y + lineHeight);
+                 doc.line(margin, y + lineHeight, margin+tableW, y + lineHeight);
+                 
+                 doc.addPage();
+                 y = 20; // Reset Y
+                 startBoxY = y;
+                 doc.line(margin, y, margin+tableW, y); // Top border next page
+            }
+            doc.setFont("helvetica", "normal");
+            doc.text(lines[i], margin+2, y+5);
+            y += lineHeight;
+        }
+
+        // Min Height Check (if short text)
+        if(y - startBoxY < 50 && lines.length < 15) {
+             y = startBoxY + 50; 
+        }
+
+        // Close Box
+        doc.line(margin, startBoxY, margin, y);
+        doc.line(margin+tableW, startBoxY, margin+tableW, y);
+        doc.line(margin, y, margin+tableW, y);
+
+        // Footer Check
+        if(y > 270) { doc.addPage(); y = 20; }
+
+        doc.rect(margin, y, tableW, rowH);
+        doc.line(margin+col1-2, y, margin+col1-2, y+rowH);
+        doc.setFont("helvetica", "bold");
+        doc.text("Digital Medical Record Completed", margin+2, y+6);
+        doc.setFont("helvetica", "normal");
+        doc.text(d.digi, margin+col1, y+6);
+        
+        y += 15;
+        doc.setFontSize(9);
+        doc.text("Please return completed forms to  " + MET_EMAIL, pageW/2, y, {align:"center"});
+
+        doc.save(`CARE_Call_Log_${d.urn}.pdf`);
+    }
+
+    function copyToClipboard(id, btn) {
+        const val = document.getElementById(id).value;
+        if(!val) return;
+        navigator.clipboard.writeText(val).then(() => {
+            let t = btn.innerText; btn.innerText="✓"; btn.classList.add('copied');
+            setTimeout(()=>{btn.innerText=t; btn.classList.remove('copied');}, 1500);
+        });
+    }
+
+    function openEmail() {
+        const date = getShiftInfo().display;
+        const body = `Dear ALERT Admin Team,\n\nPlease find Care Call Log attached from ${date}.\n\nBest regards,`;
+        window.location.href = `mailto:${MET_EMAIL}?subject=CARE Call Log - ${date}&body=${encodeURIComponent(body)}`;
+    }
+
+    function launchRedcap(mode) {
+        let p = [];
+        const t = getShiftInfo();
+        p.push(`shift_date=${t.api}`); p.push(`shifttype=${t.code}`); p.push(`site=1`);
+        
+        if(mode==='care'){
+            p.push(`alert_team=1`); p.push(`contactreason=5`); p.push(`int_group_a___5=1`);
+            const locVal = document.getElementById('cc-location').value;
+            if(locVal) p.push(`location_fs=${locVal}`);
+            const teamVal = document.getElementById('cc-team').value;
+            if(teamVal) p.push(`specialty=${teamVal}`);
+        } else if(mode==='met'){
+            p.push(`contactreason=1`); p.push(`alert_team=1`); p.push(`adds_score=9`);
+            p.push(`met_call_hoot=1`); p.push(`outcome=3`); p.push(`int_group_e___41=1`);
+            ["6","8","9","10"].forEach(x=>p.push(`int_group_a___${x}=1`));
+            ["11","16","19"].forEach(x=>p.push(`int_group_b___${x}=1`));
+            p.push(`int_group_c___25=1`); p.push(`bgl_ketones_detail=BGL`);
+        } else if(mode==='rounding'){
+            p.push(`alert_team=2`); p.push(`int_group_a___8=1`); 
+            p.push(`int_group_b___19=1`); p.push(`int_group_c___25=1`);
+        }
+        window.open(`${BASE_URL}&${p.join('&')}`, '_blank');
     }
 </script>
 </body>
