@@ -16,7 +16,7 @@
       --accent: #007a7a; --accent-hover: #006262;
       --red: #ef4444; --red-hover: #d32f2f;
       --purple: #7e22ce; 
-      --line: #d1e3e3; --input-bg: #f8fbfb;
+      --line: #cbd5e1; --input-bg: #f8fbfb;
       --success: #10b981;
       --radius: 12px;
     }
@@ -33,40 +33,48 @@
       padding: 16px; border-bottom: 1px solid var(--line);
       background: var(--card); text-align: center;
       position: sticky; top: 0; z-index: 10;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    header h1 { font-size: 1.2rem; font-weight: 800; color: var(--accent); margin: 0; }
+    header h1 { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin: 0; line-height: 1.4; }
 
     .container {
       max-width: 650px; margin: 0 auto; padding: 16px;
-      flex: 1; display: flex; flex-direction: column; gap: 16px;
+      flex: 1; display: flex; flex-direction: column; gap: 20px;
       width: 100%; box-sizing: border-box;
     }
 
     .card {
       background: var(--card); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 16px;
-      display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      border-radius: var(--radius); padding: 20px;
+      display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .section-title {
       font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--muted); font-weight: 700; margin-top: 8px; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 4px;
+      color: var(--muted); font-weight: 800; margin-top: 4px; margin-bottom: 4px; 
+      border-bottom: 2px solid #f1f5f9; padding-bottom: 6px;
     }
 
-    /* INPUTS */
-    .input-row { display: flex; gap: 10px; align-items: stretch; }
+    /* INPUTS - BIGGER & CLEANER */
+    .input-row { display: flex; gap: 10px; align-items: flex-end; }
     .input-wrapper { position: relative; flex: 1; }
     
     .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
-      width: 100%; padding: 24px 12px 8px 12px;
-      border-radius: 8px; border: 1px solid var(--line);
+      width: 100%; padding: 22px 12px 6px 12px; /* Pad top for label */
+      border-radius: 8px; border: 2px solid var(--line); /* Thicker border */
       background: var(--input-bg); color: var(--ink);
-      font-size: 1rem; outline: none; font-weight: 600;
+      font-size: 1.1rem; outline: none; font-weight: 600;
       box-sizing: border-box; font-family: inherit;
+      height: 60px; /* Taller touch target */
+      transition: border-color 0.2s;
     }
-    .input-wrapper input, .input-wrapper select { height: 56px; }
-    .input-wrapper select { appearance: none; background-color: white; }
+    .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus {
+        border-color: var(--accent);
+        background: #fff;
+    }
+    
+    .input-wrapper select { appearance: none; background-color: var(--input-bg); }
     
     .input-wrapper textarea { 
         min-height: 400px; 
@@ -74,46 +82,72 @@
     }
 
     .input-label {
-      position: absolute; top: 6px; left: 12px;
-      font-size: 0.7rem; color: var(--muted); font-weight: 600;
+      position: absolute; top: 6px; left: 14px;
+      font-size: 0.7rem; color: var(--muted); font-weight: 700;
       text-transform: uppercase; pointer-events: none; z-index: 2;
     }
 
-    /* CHECKBOXES */
+    /* CHECKBOXES - FIXED ALIGNMENT */
     .checkbox-group {
-        display: flex; flex-direction: column; gap: 8px;
-        background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--line);
+        display: flex; flex-direction: column; gap: 12px;
+        background: #f8fafc; padding: 16px; border-radius: 10px; border: 2px solid var(--line);
     }
-    .cb-row { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; font-weight: 500; }
-    .cb-row input { width: 20px; height: 20px; accent-color: var(--accent); }
+    .cb-row { 
+        display: flex; align-items: flex-start; /* Aligns top if text wraps */
+        gap: 12px; font-size: 1rem; font-weight: 600; line-height: 1.4;
+    }
+    .cb-row input { 
+        width: 24px; height: 24px; accent-color: var(--accent); 
+        flex-shrink: 0; /* Prevents squishing */
+        margin-top: 0px; 
+    }
 
     /* BUTTONS */
     .btn-copy-match {
-      width: 80px; border: 1px solid var(--line); background-color: white;
-      color: var(--accent); border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer;
-      flex-shrink: 0;
+      width: 80px; height: 60px; /* Match input height */
+      border: 2px solid var(--line); background-color: white;
+      color: var(--accent); border-radius: 8px; font-weight: 800; font-size: 1rem; cursor: pointer;
+      flex-shrink: 0; box-shadow: 0 2px 2px rgba(0,0,0,0.05);
     }
+    .btn-copy-match:active { transform: scale(0.96); background: #f0f9f9; }
     .btn-copy-match.copied { background-color: var(--success); color: white; border-color: var(--success); }
 
-    /* REDCAP QUICK COPY BOXES */
-    .rc-copy-row {
-        display: flex; gap: 10px; background: #fff0f0; padding: 12px; 
-        border-radius: 8px; border: 1px solid #fca5a5; align-items: center;
-        margin-top: 4px;
+    /* REDCAP QUICK COPY SECTION - STACKED FOR MOBILE */
+    .rc-copy-section {
+        display: flex; flex-direction: column; gap: 12px;
+        background: #fff5f5; padding: 16px; 
+        border-radius: 10px; border: 2px solid #fecaca;
+        margin-top: 8px;
     }
-    .rc-copy-box { flex: 1; }
-    .rc-copy-box label { display: block; font-size: 0.7rem; color: var(--red); font-weight: 700; margin-bottom: 2px; text-transform:uppercase; }
-    .rc-copy-box input { 
-        width: 100%; padding: 8px; border: 1px solid #fca5a5; border-radius: 6px; 
-        background: white; color: var(--ink); font-weight: 700; font-size: 1rem;
+    .rc-header {
+        font-size: 0.75rem; color: var(--red); font-weight: 800; 
+        text-transform: uppercase; text-align: center; margin-bottom: 4px;
+    }
+    .rc-row {
+        display: flex; gap: 10px; align-items: stretch;
+    }
+    .rc-input-box {
+        flex: 1; background: white; border: 2px solid #fca5a5;
+        border-radius: 8px; padding: 0 12px; display: flex; align-items: center;
+        height: 55px;
+    }
+    .rc-input-box label {
+        font-size: 0.7rem; color: var(--red); font-weight: 700; margin-right: 10px; flex-shrink: 0;
+    }
+    .rc-input-box input {
+        border: none; background: transparent; width: 100%; height: 100%;
+        font-size: 1.1rem; font-weight: 700; color: var(--ink); padding: 0; outline: none;
     }
 
-    .action-stack { display: flex; flex-direction: column; gap: 12px; }
+    /* LAUNCH BUTTONS */
+    .action-stack { display: flex; flex-direction: column; gap: 16px; }
     .btn-launch {
       display: flex; align-items: center; justify-content: center; width: 100%;
-      padding: 18px; border: none; border-radius: 10px; color: white;
+      padding: 20px; border: none; border-radius: 12px; color: white;
       cursor: pointer; font-size: 1.1rem; font-weight: 700; text-transform: uppercase;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
     }
+    .btn-launch:active { transform: scale(0.98); }
     .btn-accent { background-color: var(--accent); }
     .btn-red { background-color: var(--red); }
     .btn-purple { background-color: var(--purple); }
@@ -122,11 +156,11 @@
     /* UTILS */
     .hidden { display: none !important; }
     .btn-back {
-        background: transparent; border: 1px solid var(--line);
-        padding: 8px 16px; border-radius: 8px; color: var(--ink);
-        font-weight: 600; cursor: pointer; margin-bottom: 10px;
+        background: transparent; border: 2px solid var(--line);
+        padding: 10px 16px; border-radius: 8px; color: var(--ink);
+        font-weight: 700; cursor: pointer; margin-bottom: 12px; width: 100%; text-align: center;
     }
-    #reader { width: 100%; border-radius: 8px; overflow: hidden; display: none; margin-bottom: 12px; }
+    #reader { width: 100%; border-radius: 12px; overflow: hidden; display: none; margin-bottom: 12px; background: #000; }
   </style>
 </head>
 <body>
@@ -153,6 +187,7 @@
 
         <div class="card">
             <div class="section-title">Patient Identification</div>
+            
             <div class="input-row">
                 <div class="input-wrapper">
                     <label class="input-label">URN (UMRN)</label>
@@ -160,6 +195,7 @@
                 </div>
                 <button class="btn-copy-match" onclick="copyToClipboard('urn-main', this)">COPY</button>
             </div>
+
             <div class="input-row">
                 <div class="input-wrapper">
                     <label class="input-label">Visit Number</label>
@@ -287,7 +323,7 @@
             </div>
 
             <div class="checkbox-group">
-                <div style="font-size:0.75rem; color:var(--muted); font-weight:700; margin-bottom:6px;">TYPE (Select all that apply)</div>
+                <div style="font-size:0.8rem; color:var(--muted); font-weight:800; margin-bottom:6px;">TYPE (Select all that apply)</div>
                 <label class="cb-row"><input type="checkbox" id="cc-type-phys"> Physical / Mental State Deterioration</label>
                 <label class="cb-row"><input type="checkbox" id="cc-type-comm"> Communication Issues</label>
                 <label class="cb-row"><input type="checkbox" id="cc-type-comp"> Complaint</label>
@@ -310,18 +346,24 @@
             <button class="btn-launch btn-blue" onclick="openEmail()">2. Open Email</button>
             <button class="btn-launch btn-red" style="border:2px solid white; box-shadow:0 4px 10px rgba(239,68,68,0.4);" onclick="launchRedcap('care')">3. Launch Care Call RedCap</button>
             
-            <div class="rc-copy-row">
-                <div class="rc-copy-box">
-                    <label>RedCap Handy Copy: URN</label>
-                    <input type="text" id="mini-urn" readonly>
-                </div>
-                <button class="btn-copy-match" onclick="copyToClipboard('mini-urn', this)">COPY</button>
+            <div class="rc-copy-section">
+                <div class="rc-header">REDCap Handy Data</div>
                 
-                <div class="rc-copy-box" style="margin-left:8px;">
-                    <label>VISIT</label>
-                    <input type="text" id="mini-visit" readonly>
+                <div class="rc-row">
+                    <div class="rc-input-box">
+                        <label>URN</label>
+                        <input type="text" id="mini-urn" readonly>
+                    </div>
+                    <button class="btn-copy-match" onclick="copyToClipboard('mini-urn', this)">COPY</button>
                 </div>
-                <button class="btn-copy-match" onclick="copyToClipboard('mini-visit', this)">COPY</button>
+
+                <div class="rc-row">
+                    <div class="rc-input-box">
+                        <label>VISIT</label>
+                        <input type="text" id="mini-visit" readonly>
+                    </div>
+                    <button class="btn-copy-match" onclick="copyToClipboard('mini-visit', this)">COPY</button>
+                </div>
             </div>
         </div>
         <div style="height:40px;"></div>
@@ -507,37 +549,33 @@
         const lines = doc.splitTextToSize(d.story, tableW-4);
         const lineHeight = 5;
         let startBoxY = y;
-        doc.line(margin, y, margin + tableW, y); // Top border
+        doc.line(margin, y, margin + tableW, y);
 
         for(let i=0; i<lines.length; i++){
             // Page Break Check
             if(y > 275) {
-                 // Close box on current page
                  doc.line(margin, startBoxY, margin, y + lineHeight);
                  doc.line(margin+tableW, startBoxY, margin+tableW, y + lineHeight);
                  doc.line(margin, y + lineHeight, margin+tableW, y + lineHeight);
                  
                  doc.addPage();
-                 y = 20; // Reset Y
+                 y = 20; 
                  startBoxY = y;
-                 doc.line(margin, y, margin+tableW, y); // Top border next page
+                 doc.line(margin, y, margin+tableW, y); 
             }
             doc.setFont("helvetica", "normal");
             doc.text(lines[i], margin+2, y+5);
             y += lineHeight;
         }
 
-        // Min Height Check (if short text)
         if(y - startBoxY < 50 && lines.length < 15) {
              y = startBoxY + 50; 
         }
 
-        // Close Box
         doc.line(margin, startBoxY, margin, y);
         doc.line(margin+tableW, startBoxY, margin+tableW, y);
         doc.line(margin, y, margin+tableW, y);
 
-        // Footer Check
         if(y > 270) { doc.addPage(); y = 20; }
 
         doc.rect(margin, y, tableW, rowH);
