@@ -700,7 +700,7 @@
         if(!scanner) scanner = new Html5Qrcode("reader");
         scanner.start({facingMode:"environment"}, {fps:10, qrbox:250}, (txt)=>{
             const u = txt.match(/([A-Z]\d{7})/i);
-            const v = txt.match(/(\d{8})/);
+            const v = txt.match(/([A-Z]{2}\d+|\d{8})/i);
             if(u) document.getElementById('urn-main').value = u[1];
             if(v) document.getElementById('visit-main').value = v[1];
             if(u||v) { stopScan(); syncInputs(); navigator.vibrate?.(200); }
