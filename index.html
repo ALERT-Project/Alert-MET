@@ -12,18 +12,18 @@
 
   <style>
     :root {
-      --bg: #f0f9f9; --card: #ffffff; --ink: #111827; --muted: #6b7280; 
-      --accent: #007a7a; --accent-hover: #006262;
-      --red: #ef4444; --red-hover: #d32f2f;
-      --purple: #7e22ce; 
-      --line: #cbd5e1; --input-bg: #f8fbfb;
-      --success: #10b981;
-      --radius: 12px;
+      --bg: #f3f8f9; --card: #ffffff; --ink: #0f172a; --muted: #64748b; 
+      --accent: #0f766e; --accent-hover: #115e59;
+      --red: #e11d48; --red-hover: #be123c;
+      --purple: #7c3aed; 
+      --line: #e2e8f0; --input-bg: #f8fafc;
+      --success: #059669;
+      --radius: 16px;
     }
 
     body {
       font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
       color: var(--ink);
       margin: 0; padding: 0;
       min-height: 100vh; display: flex; flex-direction: column;
@@ -145,10 +145,10 @@
       display: flex; align-items: center; justify-content: center; width: 100%;
       padding: 20px; border: none; border-radius: 12px; color: white;
       cursor: pointer; font-size: 1.1rem; font-weight: 700; text-transform: uppercase;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.2s;
     }
     .btn-launch:active { transform: scale(0.98); }
-    .btn-accent { background-color: var(--accent); }
+    .btn-accent { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); }
     .btn-red { background-color: var(--red); }
     .btn-purple { background-color: var(--purple); }
     .btn-blue { background-color: #2563eb; }
@@ -256,8 +256,43 @@
 
     .btn-reset { 
         width: 100%; padding: 16px; border-radius: 12px;
-        background: transparent; color: var(--muted); border: 2px solid var(--line); margin-top: 10px; box-shadow: none; font-weight: 700; cursor: pointer; text-transform: uppercase;
+        background: transparent; color: var(--muted); border: 2px solid var(--line); margin-top: 10px; box-shadow: none; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
     }
+    .btn-reset:active { background: #f1f5f9; }
+
+    /* INDIVIDUAL UNLOCK BUTTON */
+    .unlock-btn {
+        background: transparent; border: none; color: #cbd5e1;
+        cursor: pointer; padding: 0; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s; height: 55px; width: 40px;
+    }
+    .unlock-btn.unlocked { color: #f59e0b; }
+    .unlock-btn:active { transform: scale(0.9); }
+    .score-container { display: flex; align-items: center; }
+
+    /* GCS SPECIFIC */
+    .gcs-group { background: white; border-radius: var(--radius); padding: 16px; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 16px;}
+    .gcs-title { font-size: 0.9rem; font-weight: 800; color: var(--accent); margin-bottom: 12px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px;}
+    .gcs-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .gcs-btn {
+        background: #f8fafc; border: 2px solid var(--line); color: var(--ink);
+        padding: 14px; border-radius: 10px; font-weight: 700; font-size: 1rem;
+        cursor: pointer; text-align: left; display: flex; justify-content: space-between;
+        transition: all 0.2s;
+    }
+    .gcs-btn:active { transform: scale(0.98); }
+    .gcs-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3); }
+    .gcs-score { font-size: 1.2rem; font-weight: 900; opacity: 0.8; }
+    
+    .gcs-total-bar {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        padding: 24px; border-radius: 16px;
+        color: white; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+        text-align: center; margin-bottom: 16px;
+    }
+    .gcs-total-num { font-size: 3.5rem; font-weight: 900; line-height: 1; margin: 8px 0; }
+    .gcs-breakdown { font-size: 1rem; color: #94a3b8; font-weight: 600; letter-spacing: 1px; }
 
   </style>
 </head>
@@ -312,6 +347,7 @@
                 <button class="btn-launch" style="background:#0f766e" onclick="showRR()">Resp Timer</button>
             </div>
 
+            <button class="btn-launch" style="background:#475569" onclick="showGcs()">GCS Calc</button>
             <button class="btn-launch btn-purple" onclick="showCareLog()">Care Call Log</button>
         </div>
     </div>
@@ -476,14 +512,6 @@
     <div id="view-adds" class="hidden">
         <button class="btn-back" onclick="showHome()">← Back to Home</button>
         
-        <div class="override-bar">
-            <span style="font-weight:700; font-size:0.9rem;">Enable Manual Override</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="adds-override" onchange="toggleOverride()">
-                <span class="slider"></span>
-            </label>
-        </div>
-
         <div class="card">
             <div class="grid" style="margin-bottom:8px;">
                 <div class="col-8"><div class="section-title">Measurement</div></div>
@@ -496,7 +524,12 @@
                     <input type="number" inputmode="decimal" class="calc-input" id="calc_rr" placeholder="RR" oninput="runAddsCalc()">
                 </div>
                 <div class="col-4">
-                    <input type="text" class="score-box" id="score_rr" value="0" readonly oninput="runManualTotal()">
+                    <div class="score-container">
+                        <input type="text" class="score-box" id="score_rr" value="0" readonly oninput="runManualTotal('score_rr')">
+                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_rr', this)" title="Unlock for manual edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -506,7 +539,12 @@
                     <input type="number" inputmode="decimal" class="calc-input" id="calc_spo2" placeholder="%" oninput="runAddsCalc()">
                 </div>
                 <div class="col-4">
-                    <input type="text" class="score-box" id="score_spo2" value="0" readonly oninput="runManualTotal()">
+                    <div class="score-container">
+                        <input type="text" class="score-box" id="score_spo2" value="0" readonly oninput="runManualTotal('score_spo2')">
+                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_spo2', this)" title="Unlock for manual edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -519,7 +557,12 @@
                      <input type="number" inputmode="decimal" class="calc-input" id="calc_o2_val" placeholder="L / %" oninput="runAddsCalc()">
                 </div>
                 <div class="col-4">
-                    <input type="text" class="score-box" id="score_o2" value="0" readonly oninput="runManualTotal()">
+                    <div class="score-container">
+                        <input type="text" class="score-box" id="score_o2" value="0" readonly oninput="runManualTotal('score_o2')">
+                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_o2', this)" title="Unlock for manual edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -529,7 +572,12 @@
                     <input type="number" inputmode="decimal" class="calc-input" id="calc_sbp" placeholder="mmHg" oninput="runAddsCalc()">
                 </div>
                 <div class="col-4">
-                    <input type="text" class="score-box" id="score_sbp" value="0" readonly oninput="runManualTotal()">
+                    <div class="score-container">
+                        <input type="text" class="score-box" id="score_sbp" value="0" readonly oninput="runManualTotal('score_sbp')">
+                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_sbp', this)" title="Unlock for manual edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -539,7 +587,12 @@
                     <input type="number" inputmode="decimal" class="calc-input" id="calc_hr" placeholder="BPM" oninput="runAddsCalc()">
                 </div>
                 <div class="col-4">
-                    <input type="text" class="score-box" id="score_hr" value="0" readonly oninput="runManualTotal()">
+                    <div class="score-container">
+                        <input type="text" class="score-box" id="score_hr" value="0" readonly oninput="runManualTotal('score_hr')">
+                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_hr', this)" title="Unlock for manual edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -549,7 +602,12 @@
                     <input type="number" inputmode="decimal" class="calc-input" id="calc_temp" step="0.1" placeholder="°C" oninput="runAddsCalc()">
                 </div>
                 <div class="col-4">
-                    <input type="text" class="score-box" id="score_temp" value="0" readonly oninput="runManualTotal()">
+                    <div class="score-container">
+                        <input type="text" class="score-box" id="score_temp" value="0" readonly oninput="runManualTotal('score_temp')">
+                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_temp', this)" title="Unlock for manual edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -564,9 +622,14 @@
                     </div>
                 </div>
                 <div class="col-12">
-                     <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px;">
-                        <span style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--muted);">CNS Score</span>
-                        <input type="text" class="score-box" style="width:100px;" id="score_avpu" value="0" readonly oninput="runManualTotal()">
+                     <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px;">
+                        <span style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-right:6px;">CNS Score</span>
+                        <div class="score-container" style="width:100px;">
+                            <input type="text" class="score-box" id="score_avpu" value="0" readonly oninput="runManualTotal('score_avpu')">
+                            <button class="unlock-btn" onclick="toggleFieldUnlock('score_avpu', this)" title="Unlock for manual edit">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            </button>
+                        </div>
                      </div>
                 </div>
             </div>
@@ -604,6 +667,54 @@
 
             <button class="btn-reset" onclick="resetRR()">Reset Timer</button>
         </div>
+    </div>
+
+    <div id="view-gcs" class="hidden">
+        <button class="btn-back" onclick="showHome()">← Back to Home</button>
+        
+        <div class="gcs-total-bar">
+            <div style="font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:0.9rem; opacity:0.8;">Total GCS</div>
+            <div class="gcs-total-num" id="gcs_total_display">15</div>
+            <div class="gcs-breakdown" id="gcs_breakdown_display">E4 V5 M6</div>
+        </div>
+
+        <div class="gcs-group">
+            <div class="gcs-title">Eyes <span class="gcs-score" id="gcs_e_val">4</span></div>
+            <div class="gcs-grid" id="gcs_eyes_grid">
+                <button class="gcs-btn active" data-val="4" onclick="setGcs('E', 4)">Spontaneous <span style="opacity:0.5;">4</span></button>
+                <button class="gcs-btn" data-val="3" onclick="setGcs('E', 3)">To Sound <span style="opacity:0.5;">3</span></button>
+                <button class="gcs-btn" data-val="2" onclick="setGcs('E', 2)">To Pressure <span style="opacity:0.5;">2</span></button>
+                <button class="gcs-btn" data-val="1" onclick="setGcs('E', 1)">None <span style="opacity:0.5;">1</span></button>
+                <button class="gcs-btn" data-val="NT" onclick="setGcs('E', 'NT')">Non-testable (Closed) <span style="opacity:0.5;">NT</span></button>
+            </div>
+        </div>
+
+        <div class="gcs-group">
+            <div class="gcs-title">Verbal <span class="gcs-score" id="gcs_v_val">5</span></div>
+            <div class="gcs-grid" id="gcs_verbal_grid">
+                <button class="gcs-btn active" data-val="5" onclick="setGcs('V', 5)">Orientated <span style="opacity:0.5;">5</span></button>
+                <button class="gcs-btn" data-val="4" onclick="setGcs('V', 4)">Confused <span style="opacity:0.5;">4</span></button>
+                <button class="gcs-btn" data-val="3" onclick="setGcs('V', 3)">Words <span style="opacity:0.5;">3</span></button>
+                <button class="gcs-btn" data-val="2" onclick="setGcs('V', 2)">Sounds <span style="opacity:0.5;">2</span></button>
+                <button class="gcs-btn" data-val="1" onclick="setGcs('V', 1)">None <span style="opacity:0.5;">1</span></button>
+                <button class="gcs-btn" data-val="NT" onclick="setGcs('V', 'NT')">Non-testable (Tube) <span style="opacity:0.5;">NT</span></button>
+            </div>
+        </div>
+
+        <div class="gcs-group">
+            <div class="gcs-title">Motor <span class="gcs-score" id="gcs_m_val">6</span></div>
+            <div class="gcs-grid" id="gcs_motor_grid">
+                <button class="gcs-btn active" data-val="6" onclick="setGcs('M', 6)">Obeys Commands <span style="opacity:0.5;">6</span></button>
+                <button class="gcs-btn" data-val="5" onclick="setGcs('M', 5)">Localising <span style="opacity:0.5;">5</span></button>
+                <button class="gcs-btn" data-val="4" onclick="setGcs('M', 4)">Normal Flexion <span style="opacity:0.5;">4</span></button>
+                <button class="gcs-btn" data-val="3" onclick="setGcs('M', 3)">Abnormal Flexion <span style="opacity:0.5;">3</span></button>
+                <button class="gcs-btn" data-val="2" onclick="setGcs('M', 2)">Extension <span style="opacity:0.5;">2</span></button>
+                <button class="gcs-btn" data-val="1" onclick="setGcs('M', 1)">None <span style="opacity:0.5;">1</span></button>
+                <button class="gcs-btn" data-val="NT" onclick="setGcs('M', 'NT')">Non-testable <span style="opacity:0.5;">NT</span></button>
+            </div>
+        </div>
+        <button class="btn-reset" onclick="resetGcs()">Reset GCS</button>
+        <div style="height:40px;"></div>
     </div>
     
     <div id="status" style="text-align:center; color:gray; font-size:0.8rem; margin:10px;"></div>
