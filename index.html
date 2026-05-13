@@ -184,10 +184,11 @@
     .calc-input:focus { border-color: var(--accent); outline: none; background: white; }
     
     .score-box {
-        width: 100%; height: 55px; border-radius: 10px;
+        flex: 1; min-width: 0;
+        height: 55px; border-radius: 10px;
         background: #e5e7eb; border: none;
         color: var(--muted); font-size: 1.4rem; font-weight: 800;
-        text-align: center; display: flex; align-items: center; justify-content: center;
+        text-align: center;
         transition: all 0.3s;
         box-sizing: border-box;
     }
@@ -266,10 +267,12 @@
         cursor: pointer; padding: 0; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         transition: all 0.2s; height: 55px; width: 40px;
+        flex-shrink: 0; /* Never let this button be squished */
+        position: relative; z-index: 2; /* Always on top */
     }
     .unlock-btn.unlocked { color: #f59e0b; }
     .unlock-btn:active { transform: scale(0.9); }
-    .score-container { display: flex; align-items: center; }
+    .score-container { display: flex; align-items: center; overflow: visible; }
 
     /* GCS SPECIFIC */
     .gcs-group { background: white; border-radius: var(--radius); padding: 16px; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 16px;}
@@ -278,9 +281,13 @@
     .gcs-btn {
         background: #f8fafc; border: 2px solid var(--line); color: var(--ink);
         padding: 14px; border-radius: 10px; font-weight: 700; font-size: 1rem;
-        cursor: pointer; text-align: left; display: flex; justify-content: space-between;
-        transition: all 0.2s;
+        cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: flex-start;
+        transition: all 0.2s; flex-direction: row; gap: 8px;
     }
+    .gcs-btn-inner { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .gcs-btn-label { font-weight: 700; font-size: 0.95rem; }
+    .gcs-btn-desc { font-size: 0.75rem; font-weight: 500; color: var(--muted); line-height: 1.3; }
+    .gcs-btn.active .gcs-btn-desc { color: rgba(255,255,255,0.75); }
     .gcs-btn:active { transform: scale(0.98); }
     .gcs-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3); }
     .gcs-score { font-size: 1.2rem; font-weight: 900; opacity: 0.8; }
@@ -681,36 +688,72 @@
         <div class="gcs-group">
             <div class="gcs-title">Eyes <span class="gcs-score" id="gcs_e_val">4</span></div>
             <div class="gcs-grid" id="gcs_eyes_grid">
-                <button class="gcs-btn active" data-val="4" onclick="setGcs('E', 4)">Spontaneous <span style="opacity:0.5;">4</span></button>
-                <button class="gcs-btn" data-val="3" onclick="setGcs('E', 3)">To Sound <span style="opacity:0.5;">3</span></button>
-                <button class="gcs-btn" data-val="2" onclick="setGcs('E', 2)">To Pressure <span style="opacity:0.5;">2</span></button>
-                <button class="gcs-btn" data-val="1" onclick="setGcs('E', 1)">None <span style="opacity:0.5;">1</span></button>
-                <button class="gcs-btn" data-val="NT" onclick="setGcs('E', 'NT')">Non-testable (Closed) <span style="opacity:0.5;">NT</span></button>
+                <button class="gcs-btn active" data-val="4" onclick="setGcs('E', 4)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Spontaneous</span><span class="gcs-btn-desc">Eyes open without stimulation</span></div><span style="opacity:0.5; font-weight:900;">4</span>
+                </button>
+                <button class="gcs-btn" data-val="3" onclick="setGcs('E', 3)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">To Sound</span><span class="gcs-btn-desc">Eyes open to voice or loud noise</span></div><span style="opacity:0.5; font-weight:900;">3</span>
+                </button>
+                <button class="gcs-btn" data-val="2" onclick="setGcs('E', 2)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">To Pressure</span><span class="gcs-btn-desc">Eyes open to fingertip pressure</span></div><span style="opacity:0.5; font-weight:900;">2</span>
+                </button>
+                <button class="gcs-btn" data-val="1" onclick="setGcs('E', 1)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">None</span><span class="gcs-btn-desc">No eye opening despite stimulation</span></div><span style="opacity:0.5; font-weight:900;">1</span>
+                </button>
+                <button class="gcs-btn" data-val="NT" onclick="setGcs('E', 'NT')">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Non-testable</span><span class="gcs-btn-desc">Eyes swollen shut / factor preventing testing</span></div><span style="opacity:0.5; font-weight:900;">NT</span>
+                </button>
             </div>
         </div>
 
         <div class="gcs-group">
             <div class="gcs-title">Verbal <span class="gcs-score" id="gcs_v_val">5</span></div>
             <div class="gcs-grid" id="gcs_verbal_grid">
-                <button class="gcs-btn active" data-val="5" onclick="setGcs('V', 5)">Orientated <span style="opacity:0.5;">5</span></button>
-                <button class="gcs-btn" data-val="4" onclick="setGcs('V', 4)">Confused <span style="opacity:0.5;">4</span></button>
-                <button class="gcs-btn" data-val="3" onclick="setGcs('V', 3)">Words <span style="opacity:0.5;">3</span></button>
-                <button class="gcs-btn" data-val="2" onclick="setGcs('V', 2)">Sounds <span style="opacity:0.5;">2</span></button>
-                <button class="gcs-btn" data-val="1" onclick="setGcs('V', 1)">None <span style="opacity:0.5;">1</span></button>
-                <button class="gcs-btn" data-val="NT" onclick="setGcs('V', 'NT')">Non-testable (Tube) <span style="opacity:0.5;">NT</span></button>
+                <button class="gcs-btn active" data-val="5" onclick="setGcs('V', 5)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Orientated</span><span class="gcs-btn-desc">Knows person, place, and date</span></div><span style="opacity:0.5; font-weight:900;">5</span>
+                </button>
+                <button class="gcs-btn" data-val="4" onclick="setGcs('V', 4)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Confused</span><span class="gcs-btn-desc">Conversing but disorientated</span></div><span style="opacity:0.5; font-weight:900;">4</span>
+                </button>
+                <button class="gcs-btn" data-val="3" onclick="setGcs('V', 3)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Words</span><span class="gcs-btn-desc">Intelligible single words only</span></div><span style="opacity:0.5; font-weight:900;">3</span>
+                </button>
+                <button class="gcs-btn" data-val="2" onclick="setGcs('V', 2)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Sounds</span><span class="gcs-btn-desc">Moaning, groaning — no words</span></div><span style="opacity:0.5; font-weight:900;">2</span>
+                </button>
+                <button class="gcs-btn" data-val="1" onclick="setGcs('V', 1)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">None</span><span class="gcs-btn-desc">No verbal response</span></div><span style="opacity:0.5; font-weight:900;">1</span>
+                </button>
+                <button class="gcs-btn" data-val="NT" onclick="setGcs('V', 'NT')">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Non-testable</span><span class="gcs-btn-desc">Intubated / tracheostomy / barrier to speech</span></div><span style="opacity:0.5; font-weight:900;">NT</span>
+                </button>
             </div>
         </div>
 
         <div class="gcs-group">
             <div class="gcs-title">Motor <span class="gcs-score" id="gcs_m_val">6</span></div>
             <div class="gcs-grid" id="gcs_motor_grid">
-                <button class="gcs-btn active" data-val="6" onclick="setGcs('M', 6)">Obeys Commands <span style="opacity:0.5;">6</span></button>
-                <button class="gcs-btn" data-val="5" onclick="setGcs('M', 5)">Localising <span style="opacity:0.5;">5</span></button>
-                <button class="gcs-btn" data-val="4" onclick="setGcs('M', 4)">Normal Flexion <span style="opacity:0.5;">4</span></button>
-                <button class="gcs-btn" data-val="3" onclick="setGcs('M', 3)">Abnormal Flexion <span style="opacity:0.5;">3</span></button>
-                <button class="gcs-btn" data-val="2" onclick="setGcs('M', 2)">Extension <span style="opacity:0.5;">2</span></button>
-                <button class="gcs-btn" data-val="1" onclick="setGcs('M', 1)">None <span style="opacity:0.5;">1</span></button>
-                <button class="gcs-btn" data-val="NT" onclick="setGcs('M', 'NT')">Non-testable <span style="opacity:0.5;">NT</span></button>
+                <button class="gcs-btn active" data-val="6" onclick="setGcs('M', 6)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Obeys Commands</span><span class="gcs-btn-desc">Follows 2-step instructions</span></div><span style="opacity:0.5; font-weight:900;">6</span>
+                </button>
+                <button class="gcs-btn" data-val="5" onclick="setGcs('M', 5)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Localising</span><span class="gcs-btn-desc">Moves limb toward painful stimulus</span></div><span style="opacity:0.5; font-weight:900;">5</span>
+                </button>
+                <button class="gcs-btn" data-val="4" onclick="setGcs('M', 4)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Normal Flexion</span><span class="gcs-btn-desc">Withdrawal — pulls away from pain</span></div><span style="opacity:0.5; font-weight:900;">4</span>
+                </button>
+                <button class="gcs-btn" data-val="3" onclick="setGcs('M', 3)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Abnormal Flexion</span><span class="gcs-btn-desc">Decorticate — wrist/arm flexion, leg extension</span></div><span style="opacity:0.5; font-weight:900;">3</span>
+                </button>
+                <button class="gcs-btn" data-val="2" onclick="setGcs('M', 2)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Extension</span><span class="gcs-btn-desc">Decerebrate — arms &amp; legs extend &amp; rotate</span></div><span style="opacity:0.5; font-weight:900;">2</span>
+                </button>
+                <button class="gcs-btn" data-val="1" onclick="setGcs('M', 1)">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">None</span><span class="gcs-btn-desc">No motor response to pain</span></div><span style="opacity:0.5; font-weight:900;">1</span>
+                </button>
+                <button class="gcs-btn" data-val="NT" onclick="setGcs('M', 'NT')">
+                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Non-testable</span><span class="gcs-btn-desc">Paralysis / fracture / other barrier</span></div><span style="opacity:0.5; font-weight:900;">NT</span>
+                </button>
             </div>
         </div>
         <button class="btn-reset" onclick="resetGcs()">Reset GCS</button>
@@ -748,37 +791,17 @@
     });
 
     // --- NAVIGATION FUNCTIONS ---
-    function showCareLog() {
-        document.getElementById('view-home').classList.add('hidden');
-        document.getElementById('view-adds').classList.add('hidden');
-        document.getElementById('view-rr').classList.add('hidden');
-        document.getElementById('view-care-log').classList.remove('hidden');
-        syncInputs();
+    const ALL_VIEWS = ['view-home','view-care-log','view-adds','view-rr','view-gcs'];
+    function showView(id) {
+        ALL_VIEWS.forEach(viewId => document.getElementById(viewId).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
         window.scrollTo(0,0);
     }
-    
-    function showAdds() {
-        document.getElementById('view-home').classList.add('hidden');
-        document.getElementById('view-care-log').classList.add('hidden');
-        document.getElementById('view-rr').classList.add('hidden');
-        document.getElementById('view-adds').classList.remove('hidden');
-        window.scrollTo(0,0);
-    }
-
-    function showRR() {
-        document.getElementById('view-home').classList.add('hidden');
-        document.getElementById('view-care-log').classList.add('hidden');
-        document.getElementById('view-adds').classList.add('hidden');
-        document.getElementById('view-rr').classList.remove('hidden');
-        window.scrollTo(0,0);
-    }
-
-    function showHome() {
-        document.getElementById('view-home').classList.remove('hidden');
-        document.getElementById('view-care-log').classList.add('hidden');
-        document.getElementById('view-adds').classList.add('hidden');
-        document.getElementById('view-rr').classList.add('hidden');
-    }
+    function showCareLog() { showView('view-care-log'); syncInputs(); }
+    function showAdds()    { showView('view-adds'); }
+    function showRR()      { showView('view-rr'); }
+    function showGcs()     { showView('view-gcs'); }
+    function showHome()    { showView('view-home'); }
 
     function syncInputs() {
         const u = document.getElementById('urn-main').value;
@@ -827,23 +850,28 @@
 
     // --- ADDS CALCULATOR LOGIC ---
     let currentAvpu = 'A';
-    let isOverrideMode = false;
+    // Per-field unlock state: set of field IDs that are manually unlocked
+    const unlockedFields = new Set();
 
-    function toggleOverride() {
-        isOverrideMode = document.getElementById('adds-override').checked;
-        const scoreBoxes = document.querySelectorAll('.score-box');
-        
-        scoreBoxes.forEach(box => {
-            if(isOverrideMode) {
-                box.removeAttribute('readonly');
-                box.classList.add('editable');
-            } else {
-                box.setAttribute('readonly', true);
-                box.classList.remove('editable');
-                // When turning off, re-run auto calc to fix any manual changes
-                runAddsCalc();
-            }
-        });
+    function toggleFieldUnlock(fieldId, btn) {
+        const el = document.getElementById(fieldId);
+        if (unlockedFields.has(fieldId)) {
+            // Lock it back — restore auto-calc value
+            unlockedFields.delete(fieldId);
+            btn.classList.remove('unlocked');
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+            el.setAttribute('readonly', true);
+            el.classList.remove('editable');
+            runAddsCalc();
+        } else {
+            // Unlock it
+            unlockedFields.add(fieldId);
+            btn.classList.add('unlocked');
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 0 0v4"></path></svg>`;
+            el.removeAttribute('readonly');
+            el.classList.add('editable');
+            el.focus();
+        }
     }
 
     function setAvpu(val) {
@@ -856,9 +884,16 @@
     }
     
     function resetAdds() {
-        document.getElementById('adds-override').checked = false;
-        toggleOverride(); // reset mode
-        
+        // Lock all fields
+        unlockedFields.clear();
+        document.querySelectorAll('.unlock-btn').forEach(btn => {
+            btn.classList.remove('unlocked');
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+        });
+        document.querySelectorAll('.score-box').forEach(el => {
+            el.setAttribute('readonly', true);
+            el.classList.remove('editable');
+        });
         ['calc_rr','calc_spo2','calc_o2_val','calc_sbp','calc_hr','calc_temp'].forEach(id => document.getElementById(id).value = '');
         document.querySelector('input[name="calc_o2_mode"][value="std"]').checked = true;
         setAvpu('A');
@@ -889,9 +924,10 @@
                 if(n >= 2) return { s: 1, m: false };
                 return { s: 0, m: false };
             } else {
+                // High Flow (FiO2 %): score 1 for any HFNP >= 21% (room air equivalent on flow)
                 if(n >= 60) return { s: 3, m: false };
                 if(n >= 40) return { s: 2, m: false };
-                if(n >= 29) return { s: 1, m: false };
+                if(n >= 21) return { s: 1, m: false };
                 return { s: 0, m: false };
             }
         }
@@ -925,44 +961,40 @@
 
     function updateScoreUI(id, res) {
         const el = document.getElementById(id);
-        // Only update value if NOT in override mode
-        if(!isOverrideMode) {
+        const isUnlocked = unlockedFields.has(id);
+        // Only auto-update value if the field is NOT manually unlocked
+        if (!isUnlocked) {
             el.value = res.m ? "M" : res.s;
         }
-        
-        // Always update visual style based on current value (even if manually typed)
+        // Always update visual style based on current value
         const val = el.value;
-        el.className = 'score-box'; // reset
-        if(isOverrideMode) el.classList.add('editable');
-        
-        if(val === 'M' || val === 'm') el.classList.add('m-score');
-        else if(parseInt(val) > 0) el.classList.add('active-score');
+        el.className = 'score-box';
+        if (isUnlocked) el.classList.add('editable');
+        if (val === 'M' || val === 'm') el.classList.add('m-score');
+        else if (parseInt(val) > 0) el.classList.add('active-score');
     }
 
     function runAddsCalc() {
-        // Gather inputs
-        const rr = document.getElementById('calc_rr').value;
-        const spo2 = document.getElementById('calc_spo2').value;
+        const rr    = document.getElementById('calc_rr').value;
+        const spo2  = document.getElementById('calc_spo2').value;
         const o2Mode = document.querySelector('input[name="calc_o2_mode"]:checked').value;
-        const o2Val = document.getElementById('calc_o2_val').value;
-        const sbp = document.getElementById('calc_sbp').value;
-        const hr = document.getElementById('calc_hr').value;
-        const temp = document.getElementById('calc_temp').value;
+        const o2Val  = document.getElementById('calc_o2_val').value;
+        const sbp   = document.getElementById('calc_sbp').value;
+        const hr    = document.getElementById('calc_hr').value;
+        const temp  = document.getElementById('calc_temp').value;
 
-        // Calc Logic
-        const rR = getAddsScore('rr', rr);
+        const rR  = getAddsScore('rr', rr);
         const rSp = getAddsScore('spo2', spo2);
         const rO2 = getAddsScore('o2', o2Val, o2Mode);
         const rBp = getAddsScore('sbp', sbp);
         const rHr = getAddsScore('hr', hr);
         const rTp = getAddsScore('temp', temp);
         
-        let rAv = { s:0, m:false };
-        if(currentAvpu === 'V') rAv.s = 2;
-        else if(currentAvpu === 'P') rAv.s = 3;
-        else if(currentAvpu === 'U') { rAv.s = 3; rAv.m = true; }
+        let rAv = { s: 0, m: false };
+        if (currentAvpu === 'V') rAv.s = 2;
+        else if (currentAvpu === 'P') rAv.s = 3;
+        else if (currentAvpu === 'U') { rAv.s = 3; rAv.m = true; }
 
-        // Update UI
         updateScoreUI('score_rr', rR);
         updateScoreUI('score_spo2', rSp);
         updateScoreUI('score_o2', rO2);
@@ -974,33 +1006,80 @@
         calculateTotal();
     }
 
-    // Called when user manually changes a score in override mode
-    function runManualTotal() {
-        // Just refresh the colors and total
-        ['score_rr','score_spo2','score_o2','score_sbp','score_hr','score_temp','score_avpu'].forEach(id => {
-            const el = document.getElementById(id);
-            const val = el.value;
-            // update classes
-            el.className = 'score-box editable';
-            if(val === 'M' || val === 'm') el.classList.add('m-score');
-            else if(parseInt(val) > 0) el.classList.add('active-score');
-        });
+    // Called when a manually-unlocked score field is edited
+    function runManualTotal(changedId) {
+        // Refresh colours for the changed field
+        const el = document.getElementById(changedId);
+        const val = el.value;
+        el.className = 'score-box editable';
+        if (val === 'M' || val === 'm') el.classList.add('m-score');
+        else if (parseInt(val) > 0) el.classList.add('active-score');
         calculateTotal();
     }
 
     function calculateTotal() {
         let total = 0;
         let isM = false;
-        
         ['score_rr','score_spo2','score_o2','score_sbp','score_hr','score_temp','score_avpu'].forEach(id => {
             const val = document.getElementById(id).value;
-            if(val === 'M' || val === 'm') isM = true;
-            else if(!isNaN(parseInt(val))) total += parseInt(val);
+            if (val === 'M' || val === 'm') isM = true;
+            else if (!isNaN(parseInt(val))) total += parseInt(val);
         });
-
         const totalDisplay = document.getElementById('calc_total_display');
         totalDisplay.innerText = total + (isM ? ' (M)' : '');
         totalDisplay.style.color = (total >= 8 || isM) ? 'var(--red)' : '#ffffff';
+    }
+
+    // --- GCS CALCULATOR LOGIC ---
+    let gcsState = { E: 4, V: 5, M: 6 };
+
+    function setGcs(component, val) {
+        gcsState[component] = val;
+        const gridId = component === 'E' ? 'gcs_eyes_grid' : component === 'V' ? 'gcs_verbal_grid' : 'gcs_motor_grid';
+        document.querySelectorAll(`#${gridId} .gcs-btn`).forEach(btn => {
+            btn.classList.toggle('active', String(btn.dataset.val) === String(val));
+        });
+        updateGcsDisplay();
+    }
+
+    function updateGcsDisplay() {
+        const E = gcsState.E;
+        const V = gcsState.V;
+        const M = gcsState.M;
+
+        const eNum = (E === 'NT') ? 0 : E;
+        const vNum = (V === 'NT') ? 0 : V;
+        const mNum = (M === 'NT') ? 0 : M;
+        const total = eNum + vNum + mNum;
+        const hasNT = (E === 'NT' || V === 'NT' || M === 'NT');
+
+        document.getElementById('gcs_e_val').textContent = E;
+        document.getElementById('gcs_v_val').textContent = V;
+        document.getElementById('gcs_m_val').textContent = M;
+
+        const totalEl = document.getElementById('gcs_total_display');
+        totalEl.textContent = hasNT ? `${total}*` : total;
+        // Colour coding
+        if (hasNT || total <= 8) {
+            totalEl.style.color = 'var(--red)';
+        } else if (total <= 12) {
+            totalEl.style.color = '#f59e0b';
+        } else {
+            totalEl.style.color = 'white';
+        }
+        document.getElementById('gcs_breakdown_display').textContent =
+            `E${E} V${V} M${M}${hasNT ? '  (* NT included)' : ''}`;
+    }
+
+    function resetGcs() {
+        gcsState = { E: 4, V: 5, M: 6 };
+        ['gcs_eyes_grid','gcs_verbal_grid','gcs_motor_grid'].forEach(gridId => {
+            document.querySelectorAll(`#${gridId} .gcs-btn`).forEach(btn => btn.classList.remove('active'));
+        });
+        document.querySelector('#gcs_eyes_grid .gcs-btn[data-val="4"]').classList.add('active');
+        document.querySelector('#gcs_verbal_grid .gcs-btn[data-val="5"]').classList.add('active');
+        document.querySelector('#gcs_motor_grid .gcs-btn[data-val="6"]').classList.add('active');
+        updateGcsDisplay();
     }
 
 
