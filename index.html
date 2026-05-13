@@ -162,57 +162,88 @@
     }
     #reader { width: 100%; border-radius: 12px; overflow: hidden; display: none; margin-bottom: 12px; background: #000; }
 
-    /* --- ADDED CSS FOR CALCULATOR & TIMER --- */
-
-    /* GRID LAYOUTS */
-    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; align-items: center;}
-    .col-6 { grid-column: span 6; } .col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-4 { grid-column: span 4; }
-
-    /* CALCULATOR SPECIFIC */
-    .calc-row {
-        background: #f8fafc; border-radius: 12px; padding: 8px;
+    /* --- ADDS CALCULATOR --- */
+    /* Each vital row is its own card */
+    .adds-card {
+        background: white; border-radius: 16px; padding: 14px 16px;
         border: 1px solid var(--line);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        margin-bottom: 10px;
     }
-    .calc-input {
-        width: 100%; height: 55px; border: 2px solid var(--line);
-        border-radius: 10px; padding: 0 12px; font-size: 1.2rem;
-        font-weight: 700; color: var(--ink); text-align: center;
-        transition: all 0.2s;
-        background: white; /* Ensure bg is white for calc inputs */
-        box-sizing: border-box;
+    .adds-card-top {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 10px;
     }
-    .calc-input:focus { border-color: var(--accent); outline: none; background: white; }
-    
+    .adds-card-label {
+        font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.6px; color: var(--muted);
+    }
+    .adds-unit { font-weight: 500; opacity: 0.7; text-transform: none; letter-spacing: 0; }
+    .adds-score-wrap { display: flex; align-items: center; gap: 6px; }
+
+    /* Big number input */
+    .adds-main-input {
+        width: 100%; height: 62px; border: 2px solid #e2e8f0;
+        border-radius: 14px; background: #f8fafc;
+        font-size: 1.9rem; font-weight: 700; text-align: center; color: var(--ink);
+        outline: none; box-sizing: border-box; transition: all 0.2s;
+    }
+    .adds-main-input:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(15,118,110,0.12); }
+
+    /* Score badge — styled input */
     .score-box {
-        flex: 1; min-width: 0;
-        height: 55px; border-radius: 10px;
-        background: #e5e7eb; border: none;
-        color: var(--muted); font-size: 1.4rem; font-weight: 800;
-        text-align: center;
-        transition: all 0.3s;
-        box-sizing: border-box;
+        width: 52px; height: 52px; border-radius: 14px; border: none;
+        font-size: 1.5rem; font-weight: 900; text-align: center;
+        background: #f1f5f9; color: #94a3b8;
+        flex-shrink: 0; transition: all 0.3s; box-sizing: border-box;
     }
-    /* When score is high */
-    .score-box.active-score { background: var(--accent); color: white; }
-    .score-box.m-score { background: var(--red); color: white; }
-    /* When editable */
-    .score-box.editable { background: white; border: 2px solid #f59e0b; color: var(--ink); cursor: text; }
+    .score-box.score-1 { background: #dbeafe; color: #1d4ed8; }
+    .score-box.score-2 { background: #ffedd5; color: #c2410c; }
+    .score-box.score-3 { background: #fee2e2; color: #dc2626; }
+    .score-box.score-m { background: #dc2626; color: white; }
+    .score-box.editable { background: #fffbeb; border: 2px solid #f59e0b; color: var(--ink); cursor: text; }
 
-    .calc-label {
-        font-size: 0.75rem; text-transform: uppercase; color: var(--muted); 
-        font-weight: 700; display: block; margin-bottom: 4px; padding-left: 4px;
+    /* Padlock button */
+    .unlock-btn {
+        background: transparent; border: none; cursor: pointer; padding: 4px;
+        color: #cbd5e1; border-radius: 8px; display: flex; align-items: center;
+        justify-content: center; transition: all 0.2s; flex-shrink: 0;
+        position: relative; z-index: 2; width: 32px; height: 32px;
+    }
+    .unlock-btn.unlocked { color: #f59e0b; }
+    .unlock-btn:active { transform: scale(0.88); }
+
+    /* O2 segmented control */
+    .o2-seg { display: flex; gap: 0; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0; margin-bottom: 10px; }
+    .o2-seg label {
+        flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+        background: #f8fafc; color: var(--muted); transition: all 0.2s; text-align: center;
+    }
+    .o2-seg input[type="radio"] { display: none; }
+    .o2-seg input[type="radio"]:checked + span { color: var(--accent); font-weight: 800; }
+    .o2-seg label:has(input:checked) { background: white; color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+
+    /* AVPU bigger buttons */
+    .avpu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .avpu-btn {
+        border: 2px solid #e2e8f0; background: #f8fafc; padding: 14px 0;
+        font-weight: 800; color: var(--muted); border-radius: 12px;
+        cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .avpu-btn-sub { font-size: 0.6rem; font-weight: 500; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.3px; }
+    .avpu-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 3px 8px rgba(15,118,110,0.3); }
+    .avpu-btn.active .avpu-btn-sub { opacity: 0.85; }
+
+    /* Total bar */
+    .total-bar {
+        background: #111827; padding: 20px; border-radius: 16px;
+        display: flex; justify-content: space-between; align-items: center;
+        color: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); margin-top: 4px;
     }
 
-    /* OVERRIDE TOGGLE */
-    .override-bar {
-        background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
-        padding: 12px 16px; border-radius: 10px; display: flex; 
-        justify-content: space-between; align-items: center; margin-bottom: 16px;
-    }
-    .toggle-switch {
-        position: relative; display: inline-block; width: 44px; height: 24px;
-    }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
     .slider {
         position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
         background-color: #ccc; transition: .4s; border-radius: 34px;
@@ -274,32 +305,52 @@
     .unlock-btn:active { transform: scale(0.9); }
     .score-container { display: flex; align-items: center; overflow: visible; }
 
-    /* GCS SPECIFIC */
-    .gcs-group { background: white; border-radius: var(--radius); padding: 16px; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 16px;}
-    .gcs-title { font-size: 0.9rem; font-weight: 800; color: var(--accent); margin-bottom: 12px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px;}
-    .gcs-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
-    .gcs-btn {
-        background: #f8fafc; border: 2px solid var(--line); color: var(--ink);
-        padding: 14px; border-radius: 10px; font-weight: 700; font-size: 1rem;
-        cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: flex-start;
-        transition: all 0.2s; flex-direction: row; gap: 8px;
-    }
-    .gcs-btn-inner { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    .gcs-btn-label { font-weight: 700; font-size: 0.95rem; }
-    .gcs-btn-desc { font-size: 0.75rem; font-weight: 500; color: var(--muted); line-height: 1.3; }
-    .gcs-btn.active .gcs-btn-desc { color: rgba(255,255,255,0.75); }
-    .gcs-btn:active { transform: scale(0.98); }
-    .gcs-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3); }
-    .gcs-score { font-size: 1.2rem; font-weight: 900; opacity: 0.8; }
-    
+    /* GCS COMPACT LAYOUT */
     .gcs-total-bar {
         background: linear-gradient(135deg, #1e293b, #0f172a);
-        padding: 24px; border-radius: 16px;
-        color: white; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
-        text-align: center; margin-bottom: 16px;
+        padding: 16px 20px; border-radius: 16px;
+        color: white; box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.3);
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 12px;
     }
-    .gcs-total-num { font-size: 3.5rem; font-weight: 900; line-height: 1; margin: 8px 0; }
-    .gcs-breakdown { font-size: 1rem; color: #94a3b8; font-weight: 600; letter-spacing: 1px; }
+    .gcs-total-left { display: flex; flex-direction: column; gap: 2px; }
+    .gcs-total-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
+    .gcs-total-num { font-size: 3rem; font-weight: 900; line-height: 1; }
+    .gcs-breakdown { font-size: 0.85rem; color: #94a3b8; font-weight: 600; letter-spacing: 1px; margin-top: 2px; }
+
+    /* Component rows */
+    .gcs-row {
+        background: white; border-radius: 14px; padding: 12px 14px;
+        border: 1px solid var(--line); margin-bottom: 8px;
+    }
+    .gcs-row-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 10px;
+    }
+    .gcs-row-name { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    .gcs-row-score { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+    /* Horizontal pill scroller */
+    .gcs-pills {
+        display: flex; gap: 6px;
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px; scrollbar-width: none;
+    }
+    .gcs-pills::-webkit-scrollbar { display: none; }
+    .gcs-pill {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        min-width: 56px; flex-shrink: 0;
+        padding: 8px 6px; border-radius: 10px;
+        border: 2px solid var(--line); background: #f8fafc;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .gcs-pill:active { transform: scale(0.95); }
+    .gcs-pill.active {
+        background: var(--accent); border-color: var(--accent); color: white;
+        box-shadow: 0 3px 8px rgba(15,118,110,0.35);
+    }
+    .gcs-pill-num { font-size: 1.1rem; font-weight: 900; line-height: 1; }
+    .gcs-pill-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; margin-top: 3px; opacity: 0.65; white-space: nowrap; }
+    .gcs-pill.active .gcs-pill-lbl { opacity: 0.85; }
 
   </style>
 </head>
@@ -517,139 +568,126 @@
     </div>
     
     <div id="view-adds" class="hidden">
-        <button class="btn-back" onclick="showHome()">← Back to Home</button>
-        
-        <div class="card">
-            <div class="grid" style="margin-bottom:8px;">
-                <div class="col-8"><div class="section-title">Measurement</div></div>
-                <div class="col-4" style="text-align:center;"><div class="section-title" style="justify-content:center;">Score</div></div>
-            </div>
+        <button class="btn-back" onclick="showHome()">&#8592; Back to Home</button>
 
-            <div class="grid">
-                <div class="col-8">
-                    <label class="calc-label">Resp Rate</label>
-                    <input type="number" inputmode="decimal" class="calc-input" id="calc_rr" placeholder="RR" oninput="runAddsCalc()">
-                </div>
-                <div class="col-4">
-                    <div class="score-container">
-                        <input type="text" class="score-box" id="score_rr" value="0" readonly oninput="runManualTotal('score_rr')">
-                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_rr', this)" title="Unlock for manual edit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
+        <!-- Resp Rate -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">Resp Rate <span class="adds-unit">breaths/min</span></span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_rr" value="0" readonly oninput="runManualTotal('score_rr')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_rr', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
                 </div>
             </div>
-
-            <div class="grid">
-                <div class="col-8">
-                    <label class="calc-label">SpO2 (%)</label>
-                    <input type="number" inputmode="decimal" class="calc-input" id="calc_spo2" placeholder="%" oninput="runAddsCalc()">
-                </div>
-                <div class="col-4">
-                    <div class="score-container">
-                        <input type="text" class="score-box" id="score_spo2" value="0" readonly oninput="runManualTotal('score_spo2')">
-                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_spo2', this)" title="Unlock for manual edit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid" style="background:#f9fafb; padding:10px; border-radius:12px; border:1px solid var(--line);">
-                <div class="col-12" style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <label style="font-size:0.8rem; font-weight:700; display:flex; align-items:center;"><input type="radio" name="calc_o2_mode" value="std" checked onchange="runAddsCalc()" style="width:20px; height:20px; margin-right:6px;"> Standard</label>
-                    <label style="font-size:0.8rem; font-weight:700; display:flex; align-items:center;"><input type="radio" name="calc_o2_mode" value="hf" onchange="runAddsCalc()" style="width:20px; height:20px; margin-right:6px;"> High Flow</label>
-                </div>
-                <div class="col-8">
-                     <input type="number" inputmode="decimal" class="calc-input" id="calc_o2_val" placeholder="L / %" oninput="runAddsCalc()">
-                </div>
-                <div class="col-4">
-                    <div class="score-container">
-                        <input type="text" class="score-box" id="score_o2" value="0" readonly oninput="runManualTotal('score_o2')">
-                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_o2', this)" title="Unlock for manual edit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="col-8">
-                    <label class="calc-label">Systolic BP</label>
-                    <input type="number" inputmode="decimal" class="calc-input" id="calc_sbp" placeholder="mmHg" oninput="runAddsCalc()">
-                </div>
-                <div class="col-4">
-                    <div class="score-container">
-                        <input type="text" class="score-box" id="score_sbp" value="0" readonly oninput="runManualTotal('score_sbp')">
-                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_sbp', this)" title="Unlock for manual edit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="col-8">
-                    <label class="calc-label">Heart Rate</label>
-                    <input type="number" inputmode="decimal" class="calc-input" id="calc_hr" placeholder="BPM" oninput="runAddsCalc()">
-                </div>
-                <div class="col-4">
-                    <div class="score-container">
-                        <input type="text" class="score-box" id="score_hr" value="0" readonly oninput="runManualTotal('score_hr')">
-                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_hr', this)" title="Unlock for manual edit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="col-8">
-                    <label class="calc-label">Temp (°C)</label>
-                    <input type="number" inputmode="decimal" class="calc-input" id="calc_temp" step="0.1" placeholder="°C" oninput="runAddsCalc()">
-                </div>
-                <div class="col-4">
-                    <div class="score-container">
-                        <input type="text" class="score-box" id="score_temp" value="0" readonly oninput="runManualTotal('score_temp')">
-                        <button class="unlock-btn" onclick="toggleFieldUnlock('score_temp', this)" title="Unlock for manual edit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="col-12">
-                    <label class="calc-label">Consciousness</label>
-                    <div class="avpu-grid" id="calc_avpu">
-                        <button class="avpu-btn active" data-value="A" onclick="setAvpu('A')">Alert</button>
-                        <button class="avpu-btn" data-value="V" onclick="setAvpu('V')">Voice</button>
-                        <button class="avpu-btn" data-value="P" onclick="setAvpu('P')">Pain</button>
-                        <button class="avpu-btn" data-value="U" onclick="setAvpu('U')">Unresp</button>
-                    </div>
-                </div>
-                <div class="col-12">
-                     <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px;">
-                        <span style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-right:6px;">CNS Score</span>
-                        <div class="score-container" style="width:100px;">
-                            <input type="text" class="score-box" id="score_avpu" value="0" readonly oninput="runManualTotal('score_avpu')">
-                            <button class="unlock-btn" onclick="toggleFieldUnlock('score_avpu', this)" title="Unlock for manual edit">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            </button>
-                        </div>
-                     </div>
-                </div>
-            </div>
-            
-            <div class="total-bar">
-                <div style="font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">Total ADDS Score</div>
-                <div id="calc_total_display" style="font-size:2.5rem; font-weight:900;">0</div>
-            </div>
-
-            <button class="btn-reset" onclick="resetAdds()">Reset Calculator</button>
+            <input type="number" inputmode="decimal" class="adds-main-input" id="calc_rr" placeholder="—" oninput="runAddsCalc()">
         </div>
+
+        <!-- SpO2 -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">SpO2 <span class="adds-unit">%</span></span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_spo2" value="0" readonly oninput="runManualTotal('score_spo2')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_spo2', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                </div>
+            </div>
+            <input type="number" inputmode="decimal" class="adds-main-input" id="calc_spo2" placeholder="—" oninput="runAddsCalc()">
+        </div>
+
+        <!-- O2 -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">Supplemental O2</span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_o2" value="0" readonly oninput="runManualTotal('score_o2')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_o2', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="o2-seg">
+                <label><input type="radio" name="calc_o2_mode" value="std" checked onchange="runAddsCalc()"><span>Standard (L/min)</span></label>
+                <label><input type="radio" name="calc_o2_mode" value="hf" onchange="runAddsCalc()"><span>High Flow (FiO2 %)</span></label>
+            </div>
+            <input type="number" inputmode="decimal" class="adds-main-input" id="calc_o2_val" placeholder="—" oninput="runAddsCalc()">
+        </div>
+
+        <!-- Systolic BP -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">Systolic BP <span class="adds-unit">mmHg</span></span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_sbp" value="0" readonly oninput="runManualTotal('score_sbp')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_sbp', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                </div>
+            </div>
+            <input type="number" inputmode="decimal" class="adds-main-input" id="calc_sbp" placeholder="—" oninput="runAddsCalc()">
+        </div>
+
+        <!-- Heart Rate -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">Heart Rate <span class="adds-unit">bpm</span></span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_hr" value="0" readonly oninput="runManualTotal('score_hr')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_hr', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                </div>
+            </div>
+            <input type="number" inputmode="decimal" class="adds-main-input" id="calc_hr" placeholder="—" oninput="runAddsCalc()">
+        </div>
+
+        <!-- Temperature -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">Temperature <span class="adds-unit">°C</span></span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_temp" value="0" readonly oninput="runManualTotal('score_temp')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_temp', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                </div>
+            </div>
+            <input type="number" inputmode="decimal" step="0.1" class="adds-main-input" id="calc_temp" placeholder="—" oninput="runAddsCalc()">
+        </div>
+
+        <!-- Consciousness / AVPU -->
+        <div class="adds-card">
+            <div class="adds-card-top">
+                <span class="adds-card-label">Consciousness <span class="adds-unit">AVPU</span></span>
+                <div class="adds-score-wrap">
+                    <input type="text" class="score-box" id="score_avpu" value="0" readonly oninput="runManualTotal('score_avpu')">
+                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_avpu', this)" title="Unlock">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="avpu-grid" id="calc_avpu">
+                <button class="avpu-btn active" data-value="A" onclick="setAvpu('A')">A<span class="avpu-btn-sub">Alert</span></button>
+                <button class="avpu-btn" data-value="V" onclick="setAvpu('V')">V<span class="avpu-btn-sub">Voice</span></button>
+                <button class="avpu-btn" data-value="P" onclick="setAvpu('P')">P<span class="avpu-btn-sub">Pain</span></button>
+                <button class="avpu-btn" data-value="U" onclick="setAvpu('U')">U<span class="avpu-btn-sub">Unresp</span></button>
+            </div>
+        </div>
+
+        <!-- Total -->
+        <div class="total-bar">
+            <div style="font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">Total ADDS Score</div>
+            <div id="calc_total_display" style="font-size:2.5rem; font-weight:900;">0</div>
+        </div>
+
+        <button class="btn-reset" onclick="resetAdds()">Reset Calculator</button>
         <div style="height:40px;"></div>
     </div>
+
+
 
     <div id="view-rr" class="hidden">
         <button class="btn-back" onclick="showHome()">← Back to Home</button>
@@ -677,87 +715,106 @@
     </div>
 
     <div id="view-gcs" class="hidden">
-        <button class="btn-back" onclick="showHome()">← Back to Home</button>
-        
+        <button class="btn-back" onclick="showHome()">&#8592; Back to Home</button>
+
         <div class="gcs-total-bar">
-            <div style="font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:0.9rem; opacity:0.8;">Total GCS</div>
-            <div class="gcs-total-num" id="gcs_total_display">15</div>
-            <div class="gcs-breakdown" id="gcs_breakdown_display">E4 V5 M6</div>
+            <div class="gcs-total-left">
+                <div class="gcs-total-label">Total GCS</div>
+                <div class="gcs-total-num" id="gcs_total_display">15</div>
+                <div class="gcs-breakdown" id="gcs_breakdown_display">E4 V5 M6</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; opacity:0.5; letter-spacing:1px; margin-bottom:4px;">Severity</div>
+                <div id="gcs_severity_display" style="font-size:1rem; font-weight:800; color:#4ade80;">Mild</div>
+            </div>
         </div>
 
-        <div class="gcs-group">
-            <div class="gcs-title">Eyes <span class="gcs-score" id="gcs_e_val">4</span></div>
-            <div class="gcs-grid" id="gcs_eyes_grid">
-                <button class="gcs-btn active" data-val="4" onclick="setGcs('E', 4)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Spontaneous</span><span class="gcs-btn-desc">Eyes open without stimulation</span></div><span style="opacity:0.5; font-weight:900;">4</span>
+        <!-- EYES -->
+        <div class="gcs-row">
+            <div class="gcs-row-header">
+                <span class="gcs-row-name">Eyes (E)</span>
+                <span class="gcs-row-score" id="gcs_e_val">4</span>
+            </div>
+            <div class="gcs-pills" id="gcs_eyes_grid">
+                <button class="gcs-pill active" data-val="4" onclick="setGcs('E', 4)">
+                    <span class="gcs-pill-num">4</span><span class="gcs-pill-lbl">Spont.</span>
                 </button>
-                <button class="gcs-btn" data-val="3" onclick="setGcs('E', 3)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">To Sound</span><span class="gcs-btn-desc">Eyes open to voice or loud noise</span></div><span style="opacity:0.5; font-weight:900;">3</span>
+                <button class="gcs-pill" data-val="3" onclick="setGcs('E', 3)">
+                    <span class="gcs-pill-num">3</span><span class="gcs-pill-lbl">Sound</span>
                 </button>
-                <button class="gcs-btn" data-val="2" onclick="setGcs('E', 2)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">To Pressure</span><span class="gcs-btn-desc">Eyes open to fingertip pressure</span></div><span style="opacity:0.5; font-weight:900;">2</span>
+                <button class="gcs-pill" data-val="2" onclick="setGcs('E', 2)">
+                    <span class="gcs-pill-num">2</span><span class="gcs-pill-lbl">Pain</span>
                 </button>
-                <button class="gcs-btn" data-val="1" onclick="setGcs('E', 1)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">None</span><span class="gcs-btn-desc">No eye opening despite stimulation</span></div><span style="opacity:0.5; font-weight:900;">1</span>
+                <button class="gcs-pill" data-val="1" onclick="setGcs('E', 1)">
+                    <span class="gcs-pill-num">1</span><span class="gcs-pill-lbl">None</span>
                 </button>
-                <button class="gcs-btn" data-val="NT" onclick="setGcs('E', 'NT')">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Non-testable</span><span class="gcs-btn-desc">Eyes swollen shut / factor preventing testing</span></div><span style="opacity:0.5; font-weight:900;">NT</span>
+                <button class="gcs-pill" data-val="NT" onclick="setGcs('E', 'NT')">
+                    <span class="gcs-pill-num">NT</span><span class="gcs-pill-lbl">Closed</span>
                 </button>
             </div>
         </div>
 
-        <div class="gcs-group">
-            <div class="gcs-title">Verbal <span class="gcs-score" id="gcs_v_val">5</span></div>
-            <div class="gcs-grid" id="gcs_verbal_grid">
-                <button class="gcs-btn active" data-val="5" onclick="setGcs('V', 5)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Orientated</span><span class="gcs-btn-desc">Knows person, place, and date</span></div><span style="opacity:0.5; font-weight:900;">5</span>
+        <!-- VERBAL -->
+        <div class="gcs-row">
+            <div class="gcs-row-header">
+                <span class="gcs-row-name">Verbal (V)</span>
+                <span class="gcs-row-score" id="gcs_v_val">5</span>
+            </div>
+            <div class="gcs-pills" id="gcs_verbal_grid">
+                <button class="gcs-pill active" data-val="5" onclick="setGcs('V', 5)">
+                    <span class="gcs-pill-num">5</span><span class="gcs-pill-lbl">Orient.</span>
                 </button>
-                <button class="gcs-btn" data-val="4" onclick="setGcs('V', 4)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Confused</span><span class="gcs-btn-desc">Conversing but disorientated</span></div><span style="opacity:0.5; font-weight:900;">4</span>
+                <button class="gcs-pill" data-val="4" onclick="setGcs('V', 4)">
+                    <span class="gcs-pill-num">4</span><span class="gcs-pill-lbl">Confus.</span>
                 </button>
-                <button class="gcs-btn" data-val="3" onclick="setGcs('V', 3)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Words</span><span class="gcs-btn-desc">Intelligible single words only</span></div><span style="opacity:0.5; font-weight:900;">3</span>
+                <button class="gcs-pill" data-val="3" onclick="setGcs('V', 3)">
+                    <span class="gcs-pill-num">3</span><span class="gcs-pill-lbl">Words</span>
                 </button>
-                <button class="gcs-btn" data-val="2" onclick="setGcs('V', 2)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Sounds</span><span class="gcs-btn-desc">Moaning, groaning — no words</span></div><span style="opacity:0.5; font-weight:900;">2</span>
+                <button class="gcs-pill" data-val="2" onclick="setGcs('V', 2)">
+                    <span class="gcs-pill-num">2</span><span class="gcs-pill-lbl">Sounds</span>
                 </button>
-                <button class="gcs-btn" data-val="1" onclick="setGcs('V', 1)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">None</span><span class="gcs-btn-desc">No verbal response</span></div><span style="opacity:0.5; font-weight:900;">1</span>
+                <button class="gcs-pill" data-val="1" onclick="setGcs('V', 1)">
+                    <span class="gcs-pill-num">1</span><span class="gcs-pill-lbl">None</span>
                 </button>
-                <button class="gcs-btn" data-val="NT" onclick="setGcs('V', 'NT')">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Non-testable</span><span class="gcs-btn-desc">Intubated / tracheostomy / barrier to speech</span></div><span style="opacity:0.5; font-weight:900;">NT</span>
+                <button class="gcs-pill" data-val="NT" onclick="setGcs('V', 'NT')">
+                    <span class="gcs-pill-num">NT</span><span class="gcs-pill-lbl">Tube</span>
                 </button>
             </div>
         </div>
 
-        <div class="gcs-group">
-            <div class="gcs-title">Motor <span class="gcs-score" id="gcs_m_val">6</span></div>
-            <div class="gcs-grid" id="gcs_motor_grid">
-                <button class="gcs-btn active" data-val="6" onclick="setGcs('M', 6)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Obeys Commands</span><span class="gcs-btn-desc">Follows 2-step instructions</span></div><span style="opacity:0.5; font-weight:900;">6</span>
+        <!-- MOTOR -->
+        <div class="gcs-row">
+            <div class="gcs-row-header">
+                <span class="gcs-row-name">Motor (M)</span>
+                <span class="gcs-row-score" id="gcs_m_val">6</span>
+            </div>
+            <div class="gcs-pills" id="gcs_motor_grid">
+                <button class="gcs-pill active" data-val="6" onclick="setGcs('M', 6)">
+                    <span class="gcs-pill-num">6</span><span class="gcs-pill-lbl">Obeys</span>
                 </button>
-                <button class="gcs-btn" data-val="5" onclick="setGcs('M', 5)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Localising</span><span class="gcs-btn-desc">Moves limb toward painful stimulus</span></div><span style="opacity:0.5; font-weight:900;">5</span>
+                <button class="gcs-pill" data-val="5" onclick="setGcs('M', 5)">
+                    <span class="gcs-pill-num">5</span><span class="gcs-pill-lbl">Local.</span>
                 </button>
-                <button class="gcs-btn" data-val="4" onclick="setGcs('M', 4)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Normal Flexion</span><span class="gcs-btn-desc">Withdrawal — pulls away from pain</span></div><span style="opacity:0.5; font-weight:900;">4</span>
+                <button class="gcs-pill" data-val="4" onclick="setGcs('M', 4)">
+                    <span class="gcs-pill-num">4</span><span class="gcs-pill-lbl">W'draw</span>
                 </button>
-                <button class="gcs-btn" data-val="3" onclick="setGcs('M', 3)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Abnormal Flexion</span><span class="gcs-btn-desc">Decorticate — wrist/arm flexion, leg extension</span></div><span style="opacity:0.5; font-weight:900;">3</span>
+                <button class="gcs-pill" data-val="3" onclick="setGcs('M', 3)">
+                    <span class="gcs-pill-num">3</span><span class="gcs-pill-lbl">Decort.</span>
                 </button>
-                <button class="gcs-btn" data-val="2" onclick="setGcs('M', 2)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Extension</span><span class="gcs-btn-desc">Decerebrate — arms &amp; legs extend &amp; rotate</span></div><span style="opacity:0.5; font-weight:900;">2</span>
+                <button class="gcs-pill" data-val="2" onclick="setGcs('M', 2)">
+                    <span class="gcs-pill-num">2</span><span class="gcs-pill-lbl">Decerb.</span>
                 </button>
-                <button class="gcs-btn" data-val="1" onclick="setGcs('M', 1)">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">None</span><span class="gcs-btn-desc">No motor response to pain</span></div><span style="opacity:0.5; font-weight:900;">1</span>
+                <button class="gcs-pill" data-val="1" onclick="setGcs('M', 1)">
+                    <span class="gcs-pill-num">1</span><span class="gcs-pill-lbl">None</span>
                 </button>
-                <button class="gcs-btn" data-val="NT" onclick="setGcs('M', 'NT')">
-                    <div class="gcs-btn-inner"><span class="gcs-btn-label">Non-testable</span><span class="gcs-btn-desc">Paralysis / fracture / other barrier</span></div><span style="opacity:0.5; font-weight:900;">NT</span>
+                <button class="gcs-pill" data-val="NT" onclick="setGcs('M', 'NT')">
+                    <span class="gcs-pill-num">NT</span><span class="gcs-pill-lbl">N-Test</span>
                 </button>
             </div>
         </div>
+
         <button class="btn-reset" onclick="resetGcs()">Reset GCS</button>
-        <div style="height:40px;"></div>
+        <div style="height:20px;"></div>
     </div>
     
     <div id="status" style="text-align:center; color:gray; font-size:0.8rem; margin:10px;"></div>
@@ -962,16 +1019,16 @@
     function updateScoreUI(id, res) {
         const el = document.getElementById(id);
         const isUnlocked = unlockedFields.has(id);
-        // Only auto-update value if the field is NOT manually unlocked
         if (!isUnlocked) {
-            el.value = res.m ? "M" : res.s;
+            el.value = res.m ? 'M' : res.s;
         }
-        // Always update visual style based on current value
         const val = el.value;
         el.className = 'score-box';
         if (isUnlocked) el.classList.add('editable');
-        if (val === 'M' || val === 'm') el.classList.add('m-score');
-        else if (parseInt(val) > 0) el.classList.add('active-score');
+        if (val === 'M' || val === 'm') el.classList.add('score-m');
+        else if (parseInt(val) === 3) el.classList.add('score-3');
+        else if (parseInt(val) === 2) el.classList.add('score-2');
+        else if (parseInt(val) === 1) el.classList.add('score-1');
     }
 
     function runAddsCalc() {
@@ -1006,14 +1063,14 @@
         calculateTotal();
     }
 
-    // Called when a manually-unlocked score field is edited
     function runManualTotal(changedId) {
-        // Refresh colours for the changed field
         const el = document.getElementById(changedId);
         const val = el.value;
         el.className = 'score-box editable';
-        if (val === 'M' || val === 'm') el.classList.add('m-score');
-        else if (parseInt(val) > 0) el.classList.add('active-score');
+        if (val === 'M' || val === 'm') el.classList.add('score-m');
+        else if (parseInt(val) === 3) el.classList.add('score-3');
+        else if (parseInt(val) === 2) el.classList.add('score-2');
+        else if (parseInt(val) === 1) el.classList.add('score-1');
         calculateTotal();
     }
 
@@ -1036,7 +1093,7 @@
     function setGcs(component, val) {
         gcsState[component] = val;
         const gridId = component === 'E' ? 'gcs_eyes_grid' : component === 'V' ? 'gcs_verbal_grid' : 'gcs_motor_grid';
-        document.querySelectorAll(`#${gridId} .gcs-btn`).forEach(btn => {
+        document.querySelectorAll(`#${gridId} .gcs-pill`).forEach(btn => {
             btn.classList.toggle('active', String(btn.dataset.val) === String(val));
         });
         updateGcsDisplay();
@@ -1059,29 +1116,32 @@
 
         const totalEl = document.getElementById('gcs_total_display');
         totalEl.textContent = hasNT ? `${total}*` : total;
-        // Colour coding
+
+        // Colour coding + severity
+        const sevEl = document.getElementById('gcs_severity_display');
         if (hasNT || total <= 8) {
-            totalEl.style.color = 'var(--red)';
+            totalEl.style.color = '#f87171';
+            sevEl.textContent = 'Severe'; sevEl.style.color = '#f87171';
         } else if (total <= 12) {
-            totalEl.style.color = '#f59e0b';
+            totalEl.style.color = '#fbbf24';
+            sevEl.textContent = 'Moderate'; sevEl.style.color = '#fbbf24';
         } else {
             totalEl.style.color = 'white';
+            sevEl.textContent = 'Mild'; sevEl.style.color = '#4ade80';
         }
         document.getElementById('gcs_breakdown_display').textContent =
-            `E${E} V${V} M${M}${hasNT ? '  (* NT included)' : ''}`;
+            `E${E} V${V} M${M}${hasNT ? ' *NT' : ''}`;
     }
 
     function resetGcs() {
         gcsState = { E: 4, V: 5, M: 6 };
         ['gcs_eyes_grid','gcs_verbal_grid','gcs_motor_grid'].forEach(gridId => {
-            document.querySelectorAll(`#${gridId} .gcs-btn`).forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll(`#${gridId} .gcs-pill`).forEach(btn => btn.classList.remove('active'));
         });
-        document.querySelector('#gcs_eyes_grid .gcs-btn[data-val="4"]').classList.add('active');
-        document.querySelector('#gcs_verbal_grid .gcs-btn[data-val="5"]').classList.add('active');
-        document.querySelector('#gcs_motor_grid .gcs-btn[data-val="6"]').classList.add('active');
-        updateGcsDisplay();
+        document.querySelector('#gcs_eyes_grid .gcs-pill[data-val="4"]').classList.add('active');
+        document.querySelector('#gcs_verbal_grid .gcs-pill[data-val="5"]').classList.add('active');
+        document.querySelector('#gcs_motor_grid .gcs-pill[data-val="6"]').classList.add('active');
     }
-
 
     // --- RESP RATE TIMER LOGIC ---
     let rrTaps = [];
