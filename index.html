@@ -946,16 +946,16 @@
                 if(n >= 2) return { s: 1, m: false };
                 return { s: 0, m: false };
             } else {
-                // High Flow (FiO2 %): score 1 for any HFNP >= 21% (room air equivalent on flow)
-                if(n >= 60) return { s: 3, m: false };
-                if(n >= 40) return { s: 2, m: false };
+                // High Flow (FiO2 %): >40 = 3, 29-40 = 2, 21-28 = 1 per the AORC chart
+                if(n > 40) return { s: 3, m: false };
+                if(n >= 29) return { s: 2, m: false };
                 if(n >= 21) return { s: 1, m: false };
                 return { s: 0, m: false };
             }
         }
         if(type === 'sbp') {
             if(n >= 200) return { s: 3, m: false };
-            if(n >= 180) return { s: 2, m: false };
+            if(n >= 170) return { s: 2, m: false };
             if(n >= 160) return { s: 1, m: false };
             if(n <= 89) return { s: 3, m: true }; 
             if(n <= 99) return { s: 2, m: false };
@@ -965,7 +965,7 @@
         if(type === 'hr') {
             if(n >= 140) return { s: 3, m: true };
             if(n >= 130) return { s: 3, m: false };
-            if(n >= 120) return { s: 2, m: false };
+            if(n >= 110) return { s: 2, m: false };
             if(n >= 100) return { s: 1, m: false };
             if(n <= 39) return { s: 3, m: true };
             if(n <= 49) return { s: 1, m: false };
@@ -1096,6 +1096,7 @@
         document.querySelector('#gcs_eyes_grid .gcs-pill[data-val="4"]').classList.add('active');
         document.querySelector('#gcs_verbal_grid .gcs-pill[data-val="5"]').classList.add('active');
         document.querySelector('#gcs_motor_grid .gcs-pill[data-val="6"]').classList.add('active');
+        updateGcsDisplay(); // was missing: total and breakdown kept stale values on reset
     }
 
     // --- RESP RATE TIMER LOGIC ---
