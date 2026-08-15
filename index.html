@@ -305,16 +305,14 @@
     .gcs-row-name { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
     .gcs-row-score { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
     /* Horizontal pill scroller */
+    /* One row per parameter, pills shrink to fit so nothing is clipped or scrolled off */
     .gcs-pills {
-        display: flex; gap: 6px;
-        overflow-x: auto; -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px; scrollbar-width: none;
+        display: flex; gap: 5px;
     }
-    .gcs-pills::-webkit-scrollbar { display: none; }
     .gcs-pill {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        min-width: 56px; flex-shrink: 0;
-        padding: 8px 6px; border-radius: 10px;
+        flex: 1 1 0; min-width: 0;
+        padding: 8px 2px; border-radius: 10px;
         border: 2px solid var(--line); background: #f8fafc;
         cursor: pointer; transition: all 0.2s;
     }
@@ -324,8 +322,14 @@
         box-shadow: 0 3px 8px rgba(15,118,110,0.35);
     }
     .gcs-pill-num { font-size: 1.1rem; font-weight: 900; line-height: 1; }
-    .gcs-pill-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; margin-top: 3px; opacity: 0.65; white-space: nowrap; }
+    .gcs-pill-lbl { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; margin-top: 3px; opacity: 0.65; white-space: nowrap; }
     .gcs-pill.active .gcs-pill-lbl { opacity: 0.85; }
+    /* Motor has six options; on narrow phones the labels need to tighten to stay on one line */
+    @media (max-width: 360px) {
+        .gcs-pills { gap: 3px; }
+        .gcs-pill { padding: 8px 1px; }
+        .gcs-pill-lbl { font-size: 0.48rem; letter-spacing: -0.2px; }
+    }
 
   </style>
 </head>
