@@ -199,17 +199,19 @@
     .score-box.score-2 { background: #ffedd5; color: #c2410c; }
     .score-box.score-3 { background: #fee2e2; color: #dc2626; }
     .score-box.score-m { background: #dc2626; color: white; }
-    .score-box.editable { background: #fffbeb; border: 2px solid #f59e0b; color: var(--ink); cursor: text; }
 
     /* Padlock button */
-    .unlock-btn {
-        background: transparent; border: none; cursor: pointer; padding: 4px;
-        color: #cbd5e1; border-radius: 6px; display: flex; align-items: center;
+    .mod-chip {
+        background: white; border: 2px solid #e2e8f0; cursor: pointer; padding: 0;
+        color: var(--muted); border-radius: 8px; display: flex; align-items: center;
         justify-content: center; transition: all 0.2s; flex-shrink: 0;
-        position: relative; z-index: 2; width: 28px; height: 28px;
+        position: relative; z-index: 2; width: 44px; height: 44px;
+        font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+        touch-action: manipulation;
     }
-    .unlock-btn.unlocked { color: #f59e0b; }
-    .unlock-btn:active { transform: scale(0.88); }
+    .mod-chip.active { background: #f59e0b; border-color: #f59e0b; color: white; }
+    .mod-chip:active { transform: scale(0.9); }
+    .score-box.modded { background: #f1f5f9; color: #94a3b8; text-decoration: line-through; }
 
     /* O2 segmented control */
     .o2-seg { display: flex; gap: 0; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; height: 44px; }
@@ -263,17 +265,24 @@
     }
     .btn-reset:active { background: #f1f5f9; }
 
-    /* INDIVIDUAL UNLOCK BUTTON */
-    .unlock-btn {
-        background: transparent; border: none; color: #cbd5e1;
-        cursor: pointer; padding: 0; border-radius: 50%;
+    /* INDIVIDUAL MOD TOGGLE */
+    .mod-chip {
+        background: white; border: 2px solid #e2e8f0; color: var(--muted);
+        cursor: pointer; padding: 0; border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
-        transition: all 0.2s; height: 55px; width: 40px;
+        transition: all 0.2s; height: 44px; width: 44px;
+        font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
         flex-shrink: 0; /* Never let this button be squished */
         position: relative; z-index: 2; /* Always on top */
+        touch-action: manipulation;
     }
-    .unlock-btn.unlocked { color: #f59e0b; }
-    .unlock-btn:active { transform: scale(0.9); }
+    .mod-chip.active { background: #f59e0b; border-color: #f59e0b; color: white; }
+    .mod-chip:active { transform: scale(0.9); }
+    .mod-note {
+        background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+        padding: 10px 14px; border-radius: 10px; margin-bottom: 16px;
+        font-size: 0.8rem; font-weight: 600; line-height: 1.4;
+    }
     .score-container { display: flex; align-items: center; overflow: visible; }
 
     /* GCS COMPACT LAYOUT */
@@ -541,6 +550,10 @@
     <div id="view-adds" class="hidden">
         <button class="btn-back" onclick="showHome()">&#8592; Back to Home</button>
 
+        <div class="mod-note">
+            Tap <strong>MOD</strong> on any parameter with a documented modification. That parameter scores 0 and will not trigger a MET call.
+        </div>
+
         <!-- Resp Rate -->
         <div class="adds-card">
             <div class="adds-card-col-left">
@@ -549,10 +562,8 @@
             </div>
             <input type="number" inputmode="decimal" class="adds-main-input" id="calc_rr" placeholder="—" oninput="runAddsCalc()">
             <div class="adds-score-wrap">
-                <input type="text" class="score-box" id="score_rr" value="0" readonly oninput="runManualTotal('score_rr')">
-                <button class="unlock-btn" onclick="toggleFieldUnlock('score_rr', this)" title="Unlock">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                </button>
+                <input type="text" class="score-box" id="score_rr" value="0" readonly>
+                <button type="button" class="mod-chip" id="mod_rr" onclick="toggleMod('rr')" title="Modification">Mod</button>
             </div>
         </div>
 
@@ -564,10 +575,8 @@
             </div>
             <input type="number" inputmode="decimal" class="adds-main-input" id="calc_spo2" placeholder="—" oninput="runAddsCalc()">
             <div class="adds-score-wrap">
-                <input type="text" class="score-box" id="score_spo2" value="0" readonly oninput="runManualTotal('score_spo2')">
-                <button class="unlock-btn" onclick="toggleFieldUnlock('score_spo2', this)" title="Unlock">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                </button>
+                <input type="text" class="score-box" id="score_spo2" value="0" readonly>
+                <button type="button" class="mod-chip" id="mod_spo2" onclick="toggleMod('spo2')" title="Modification">Mod</button>
             </div>
         </div>
 
@@ -576,10 +585,8 @@
             <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                 <div class="adds-card-col-left" style="width: auto;"><span class="adds-card-label">Supplemental O2</span></div>
                 <div class="adds-score-wrap">
-                    <input type="text" class="score-box" id="score_o2" value="0" readonly oninput="runManualTotal('score_o2')">
-                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_o2', this)" title="Unlock">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    </button>
+                    <input type="text" class="score-box" id="score_o2" value="0" readonly>
+                    <button type="button" class="mod-chip" id="mod_o2" onclick="toggleMod('o2')" title="Modification">Mod</button>
                 </div>
             </div>
             <div class="o2-seg" style="flex: 1;">
@@ -597,10 +604,8 @@
             </div>
             <input type="number" inputmode="decimal" class="adds-main-input" id="calc_sbp" placeholder="—" oninput="runAddsCalc()">
             <div class="adds-score-wrap">
-                <input type="text" class="score-box" id="score_sbp" value="0" readonly oninput="runManualTotal('score_sbp')">
-                <button class="unlock-btn" onclick="toggleFieldUnlock('score_sbp', this)" title="Unlock">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                </button>
+                <input type="text" class="score-box" id="score_sbp" value="0" readonly>
+                <button type="button" class="mod-chip" id="mod_sbp" onclick="toggleMod('sbp')" title="Modification">Mod</button>
             </div>
         </div>
 
@@ -612,10 +617,8 @@
             </div>
             <input type="number" inputmode="decimal" class="adds-main-input" id="calc_hr" placeholder="—" oninput="runAddsCalc()">
             <div class="adds-score-wrap">
-                <input type="text" class="score-box" id="score_hr" value="0" readonly oninput="runManualTotal('score_hr')">
-                <button class="unlock-btn" onclick="toggleFieldUnlock('score_hr', this)" title="Unlock">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                </button>
+                <input type="text" class="score-box" id="score_hr" value="0" readonly>
+                <button type="button" class="mod-chip" id="mod_hr" onclick="toggleMod('hr')" title="Modification">Mod</button>
             </div>
         </div>
 
@@ -627,10 +630,8 @@
             </div>
             <input type="number" inputmode="decimal" step="0.1" class="adds-main-input" id="calc_temp" placeholder="—" oninput="runAddsCalc()">
             <div class="adds-score-wrap">
-                <input type="text" class="score-box" id="score_temp" value="0" readonly oninput="runManualTotal('score_temp')">
-                <button class="unlock-btn" onclick="toggleFieldUnlock('score_temp', this)" title="Unlock">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                </button>
+                <input type="text" class="score-box" id="score_temp" value="0" readonly>
+                <button type="button" class="mod-chip" id="mod_temp" onclick="toggleMod('temp')" title="Modification">Mod</button>
             </div>
         </div>
 
@@ -641,10 +642,8 @@
                     <span class="adds-card-label">Consciousness</span><span class="adds-unit">AVPU</span>
                 </div>
                 <div class="adds-score-wrap">
-                    <input type="text" class="score-box" id="score_avpu" value="0" readonly oninput="runManualTotal('score_avpu')">
-                    <button class="unlock-btn" onclick="toggleFieldUnlock('score_avpu', this)" title="Unlock">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    </button>
+                    <input type="text" class="score-box" id="score_avpu" value="0" readonly>
+                    <button type="button" class="mod-chip" id="mod_avpu" onclick="toggleMod('avpu')" title="Modification">Mod</button>
                 </div>
             </div>
             <div class="avpu-grid" id="calc_avpu">
@@ -658,7 +657,10 @@
         <!-- Total -->
         <div class="total-bar">
             <div style="font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">Total ADDS Score</div>
-            <div id="calc_total_display" style="font-size:2.5rem; font-weight:900;">0</div>
+            <div style="text-align:right;">
+                <div id="calc_total_display" style="font-size:2.5rem; font-weight:900; line-height:1;">0</div>
+                <div id="calc_total_sub" style="font-size:0.8rem; font-weight:600; opacity:0.7; margin-top:4px;"></div>
+            </div>
         </div>
 
         <button class="btn-reset" onclick="resetAdds()">Reset Calculator</button>
@@ -872,28 +874,15 @@
 
     // --- ADDS CALCULATOR LOGIC ---
     let currentAvpu = 'A';
-    // Per-field unlock state: set of field IDs that are manually unlocked
-    const unlockedFields = new Set();
 
-    function toggleFieldUnlock(fieldId, btn) {
-        const el = document.getElementById(fieldId);
-        if (unlockedFields.has(fieldId)) {
-            // Lock it back — restore auto-calc value
-            unlockedFields.delete(fieldId);
-            btn.classList.remove('unlocked');
-            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
-            el.setAttribute('readonly', true);
-            el.classList.remove('editable');
-            runAddsCalc();
-        } else {
-            // Unlock it
-            unlockedFields.add(fieldId);
-            btn.classList.add('unlocked');
-            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 0 0v4"></path></svg>`;
-            el.removeAttribute('readonly');
-            el.classList.add('editable');
-            el.focus();
-        }
+    // A modded parameter scores 0 and cannot trigger a MET call.
+    const PARAMS = ['rr','spo2','o2','sbp','hr','temp','avpu'];
+    let modded = { rr:false, spo2:false, o2:false, sbp:false, hr:false, temp:false, avpu:false };
+
+    function toggleMod(key) {
+        modded[key] = !modded[key];
+        document.getElementById('mod_' + key).classList.toggle('active', modded[key]);
+        runAddsCalc();
     }
 
     function setAvpu(val) {
@@ -906,15 +895,10 @@
     }
     
     function resetAdds() {
-        // Lock all fields
-        unlockedFields.clear();
-        document.querySelectorAll('.unlock-btn').forEach(btn => {
-            btn.classList.remove('unlocked');
-            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
-        });
-        document.querySelectorAll('.score-box').forEach(el => {
-            el.setAttribute('readonly', true);
-            el.classList.remove('editable');
+        // Clear all modifications
+        PARAMS.forEach(key => {
+            modded[key] = false;
+            document.getElementById('mod_' + key).classList.remove('active');
         });
         ['calc_rr','calc_spo2','calc_o2_val','calc_sbp','calc_hr','calc_temp'].forEach(id => document.getElementById(id).value = '');
         document.querySelector('input[name="calc_o2_mode"][value="std"]').checked = true;
@@ -981,19 +965,21 @@
         return { s: 0, m: false };
     }
 
-    function updateScoreUI(id, res) {
+    function updateScoreUI(id, res, key) {
         const el = document.getElementById(id);
-        const isUnlocked = unlockedFields.has(id);
-        if (!isUnlocked) {
-            el.value = res.m ? 'M' : res.s;
-        }
-        const val = el.value;
         el.className = 'score-box';
-        if (isUnlocked) el.classList.add('editable');
-        if (val === 'M' || val === 'm') el.classList.add('score-m');
-        else if (parseInt(val) === 3) el.classList.add('score-3');
-        else if (parseInt(val) === 2) el.classList.add('score-2');
-        else if (parseInt(val) === 1) el.classList.add('score-1');
+
+        if (modded[key]) {
+            el.value = '0';
+            el.classList.add('modded');
+            return;
+        }
+
+        el.value = res.m ? 'M' : res.s;
+        if (res.m) el.classList.add('score-m');
+        else if (res.s === 3) el.classList.add('score-3');
+        else if (res.s === 2) el.classList.add('score-2');
+        else if (res.s === 1) el.classList.add('score-1');
     }
 
     function runAddsCalc() {
@@ -1017,39 +1003,40 @@
         else if (currentAvpu === 'P') rAv.s = 3;
         else if (currentAvpu === 'U') { rAv.s = 3; rAv.m = true; }
 
-        updateScoreUI('score_rr', rR);
-        updateScoreUI('score_spo2', rSp);
-        updateScoreUI('score_o2', rO2);
-        updateScoreUI('score_sbp', rBp);
-        updateScoreUI('score_hr', rHr);
-        updateScoreUI('score_temp', rTp);
-        updateScoreUI('score_avpu', rAv);
+        updateScoreUI('score_rr', rR, 'rr');
+        updateScoreUI('score_spo2', rSp, 'spo2');
+        updateScoreUI('score_o2', rO2, 'o2');
+        updateScoreUI('score_sbp', rBp, 'sbp');
+        updateScoreUI('score_hr', rHr, 'hr');
+        updateScoreUI('score_temp', rTp, 'temp');
+        updateScoreUI('score_avpu', rAv, 'avpu');
 
-        calculateTotal();
-    }
-
-    function runManualTotal(changedId) {
-        const el = document.getElementById(changedId);
-        const val = el.value;
-        el.className = 'score-box editable';
-        if (val === 'M' || val === 'm') el.classList.add('score-m');
-        else if (parseInt(val) === 3) el.classList.add('score-3');
-        else if (parseInt(val) === 2) el.classList.add('score-2');
-        else if (parseInt(val) === 1) el.classList.add('score-1');
         calculateTotal();
     }
 
     function calculateTotal() {
         let total = 0;
         let isM = false;
-        ['score_rr','score_spo2','score_o2','score_sbp','score_hr','score_temp','score_avpu'].forEach(id => {
-            const val = document.getElementById(id).value;
+        PARAMS.forEach(key => {
+            if (modded[key]) return; // modded parameters score 0 and cannot trigger MET
+            const val = document.getElementById('score_' + key).value;
             if (val === 'M' || val === 'm') isM = true;
             else if (!isNaN(parseInt(val))) total += parseInt(val);
         });
+
         const totalDisplay = document.getElementById('calc_total_display');
-        totalDisplay.innerText = total + (isM ? ' (M)' : '');
-        totalDisplay.style.color = (total >= 8 || isM) ? 'var(--red)' : '#ffffff';
+        const subDisplay = document.getElementById('calc_total_sub');
+
+        if (isM) {
+            // Any un-modded M zone overrides the numeric score outright.
+            totalDisplay.innerText = 'MET';
+            totalDisplay.style.color = 'var(--red)';
+            if (subDisplay) subDisplay.innerText = 'ADDS ' + total;
+        } else {
+            totalDisplay.innerText = total;
+            totalDisplay.style.color = (total >= 8) ? 'var(--red)' : '#ffffff';
+            if (subDisplay) subDisplay.innerText = '';
+        }
     }
 
     // --- GCS CALCULATOR LOGIC ---
