@@ -169,6 +169,19 @@
     }
     #reader { width: 100%; border-radius: 12px; overflow: hidden; display: none; margin-bottom: 12px; background: #000; }
 
+    /* --- SITE TOGGLE --- */
+    .site-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .site-btn {
+        border: 2px solid #e2e8f0; background: #f8fafc; padding: 10px 0;
+        font-weight: 900; color: var(--muted); border-radius: 10px;
+        cursor: pointer; font-size: 1rem; transition: all 0.2s;
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        touch-action: manipulation;
+    }
+    .site-btn-sub { font-size: 0.55rem; font-weight: 600; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.3px; }
+    .site-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 3px 8px rgba(15,118,110,0.3); }
+    .site-btn.active .site-btn-sub { opacity: 0.85; }
+
     /* --- ADDS CALCULATOR --- */
     /* Each vital row is its own card */
     .adds-card {
@@ -349,6 +362,14 @@
   <div class="container">
     
     <div id="view-home">
+        <div class="card" style="padding-bottom:14px;">
+            <div class="section-title">Site</div>
+            <div class="site-seg" id="site-seg">
+                <button type="button" class="site-btn" data-site="1" onclick="setSite(1)">FSH<span class="site-btn-sub">Fiona Stanley</span></button>
+                <button type="button" class="site-btn" data-site="2" onclick="setSite(2)">FH<span class="site-btn-sub">Fremantle</span></button>
+            </div>
+        </div>
+
         <div class="card">
             <div id="reader"></div>
             <button id="btn-scan-toggle" class="btn-launch" style="background:#111827; gap:12px;" onclick="toggleScanner()">
@@ -792,6 +813,28 @@
 <script>
     const BASE_URL = "https://datalibrary-rc.health.wa.gov.au/surveys/?s=K3WAPC4KKXWNTF3F";
     const MET_EMAIL = "fshsqr.MET@health.wa.gov.au";
+
+    // --- SITE SELECTION ---
+    // REDCap "site" enum: 1 = Fiona Stanley Hospital, 2 = Fremantle Hospital
+    const SITES = {
+        1: { code: 'FSH', name: 'Fiona Stanley Hospital' },
+        2: { code: 'FH',  name: 'Fremantle Hospital' }
+    };
+    let currentSite = 1;
+
+    function setSite(site) {
+        currentSite = Number(site) === 2 ? 2 : 1;
+        try { localStorage.setItem('alertmet_site', String(currentSite)); } catch(e) {}
+        document.querySelectorAll('#site-seg .site-btn').forEach(b => {
+            b.classList.toggle('active', Number(b.dataset.site) === currentSite);
+        });
+    }
+
+    function loadSite() {
+        let saved = 1;
+        try { saved = Number(localStorage.getItem('alertmet_site')) || 1; } catch(e) {}
+        setSite(saved);
+    }
     const LOCATIONS = [
         {v:1, t:"3A"}, {v:2, t:"3B"}, {v:3, t:"3DMFAU"}, {v:4, t:"Birth Suite"}, {v:5, t:"3C"},
         {v:6, t:"4A"}, {v:7, t:"4B"}, {v:8, t:"4C"}, {v:9, t:"4D"}, {v:10, t:"5A"},
@@ -815,6 +858,8 @@
         let opt = document.createElement('option');
         opt.value = l.v; opt.text = l.t; locSelect.add(opt);
     });
+
+    loadSite(); // restore the last site the user selected
 
     // --- NAVIGATION FUNCTIONS ---
     const ALL_VIEWS = ['view-home','view-care-log','view-adds','view-rr','view-gcs'];
@@ -1190,7 +1235,7 @@
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(16);
-        doc.text("Fiona Stanley Hospital", pageW/2, y, {align:"center"});
+        doc.text(SITES[currentSite].name, pageW/2, y, {align:"center"});
         y += 8;
         doc.setFontSize(13);
         doc.text("Patient Carer Activated Escalation (CARE) call received log", pageW/2, y, {align:"center"});
@@ -1307,7 +1352,7 @@
     function launchRedcap(mode) {
         let p = [];
         const t = getShiftInfo();
-        p.push(`shift_date=${t.api}`); p.push(`shifttype=${t.code}`); p.push(`site=1`);
+        p.push(`shift_date=${t.api}`); p.push(`shifttype=${t.code}`); p.push(`site=${currentSite}`);
         
         if(mode==='care'){
             p.push(`alert_team=1`); p.push(`contactreason=5`); p.push(`int_group_a___5=1`);
