@@ -147,7 +147,9 @@
     }
 
     /* LAUNCH BUTTONS */
-    .action-stack { display: flex; flex-direction: column; gap: 16px; }
+    /* Home sections need their own gap: .container gap applies between views, not inside them */
+    #view-home { display: flex; flex-direction: column; gap: 10px; }
+    .action-stack { display: flex; flex-direction: column; gap: 10px; }
     .btn-launch {
       display: flex; align-items: center; justify-content: center; width: 100%;
       min-height: 56px; text-align: center; line-height: 1.15;
@@ -828,7 +830,6 @@
         <div style="height:20px;"></div>
     </div>
     
-    <div id="status" style="text-align:center; color:gray; font-size:0.8rem; margin:10px;"></div>
     <div class="app-credit">
         <div>ALERT Utilities v1.0 (15 August 2026) &copy; 2025-2026 Casey Bond</div>
         <div>Developed for ALERT at South Metropolitan Health Service, WA, Australia</div>
@@ -926,7 +927,6 @@
         let c="3"; if(h>=7.5 && h<14.5)c="1"; else if(h>=14.5 && h<20)c="2";
         return { api: `${y}-${m}-${d}`, display: `${d}/${m}/${y}`, code: c };
     }
-    document.getElementById('status').innerText = `Date: ${getShiftInfo().display}`;
 
     let scanner=null; let isScanning=false;
     function toggleScanner(){ if(isScanning) stopScan(); else startScan(); }
