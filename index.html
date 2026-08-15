@@ -1353,21 +1353,25 @@
         let p = [];
         const t = getShiftInfo();
         p.push(`shift_date=${t.api}`); p.push(`shifttype=${t.code}`); p.push(`site=${currentSite}`);
-        
+
+        // ALERT Team Report: 1 = CNS report, 2 = rounding report.
+        // Fremantle only ever files a CNS report, whatever the mode.
+        p.push(`alert_team=${currentSite === 2 ? 1 : (mode === 'rounding' ? 2 : 1)}`);
+
         if(mode==='care'){
-            p.push(`alert_team=1`); p.push(`contactreason=5`); p.push(`int_group_a___5=1`);
+            p.push(`contactreason=5`); p.push(`int_group_a___5=1`);
             const locVal = document.getElementById('cc-location').value;
             if(locVal) p.push(`location_fs=${locVal}`);
             const teamVal = document.getElementById('cc-team').value;
             if(teamVal) p.push(`specialty=${teamVal}`);
         } else if(mode==='met'){
-            p.push(`contactreason=1`); p.push(`alert_team=1`); p.push(`adds_score=9`);
+            p.push(`contactreason=1`); p.push(`adds_score=9`);
             p.push(`met_call_hoot=1`); p.push(`outcome=3`); p.push(`int_group_e___41=1`);
             ["6","8","9","10"].forEach(x=>p.push(`int_group_a___${x}=1`));
             ["11","16","19"].forEach(x=>p.push(`int_group_b___${x}=1`));
             p.push(`int_group_c___25=1`); p.push(`bgl_ketones_detail=BGL`);
         } else if(mode==='rounding'){
-            p.push(`alert_team=2`); p.push(`int_group_a___8=1`); 
+            p.push(`int_group_a___8=1`);
             p.push(`int_group_b___19=1`); p.push(`int_group_c___25=1`);
         }
         window.open(`${BASE_URL}&${p.join('&')}`, '_blank');
